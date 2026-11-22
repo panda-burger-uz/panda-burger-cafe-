@@ -1,0 +1,3853 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panda Burger — Online Buyurtma, Moliya va Admin Tizimi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #F7F7F8;
+      color: #111315;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop-in {
+      animation: popIn 0.22s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-[#FFD60A] selection:text-[#111315]">
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-[92vw] sm:max-w-sm pointer-events-none"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-40 bg-[#111315]/95 backdrop-blur-md text-white border-b border-white/10 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#FFD60A] to-[#FF5A1F] flex items-center justify-center text-2xl sm:text-3xl shadow-md shrink-0">
+          🐼
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-black text-lg sm:text-2xl tracking-tight leading-none">
+              PANDA <span class="text-[#FFD60A]">BURGER</span>
+            </h1>
+            <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              🚚 Dastavka BEPUL
+            </span>
+          </div>
+          <p class="text-[11px] sm:text-xs text-gray-400 mt-0.5">O'nhayot, Namangan • Tezkor issiq yetkazish</p>
+        </div>
+      </div>
+
+      <!-- Header Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Live Sync Status Pill -->
+        <div
+          id="clientLiveStatusPill"
+          title="Menyu real vaqtda yangilanadi"
+          class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-xs font-bold"
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="clientLiveStatusText">Jonli menyu</span>
+        </div>
+
+        <!-- Admin Panel Button -->
+        <button
+          id="openAdminBtn"
+          type="button"
+          class="flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold border border-white/15 transition cursor-pointer"
+        >
+          <span>⚙️</span>
+          <span>Admin Panel</span>
+        </button>
+
+        <!-- Cart Button -->
+        <button
+          id="openCartHeaderBtn"
+          type="button"
+          class="relative flex items-center gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl bg-[#FFD60A] hover:bg-[#f7cd00] text-[#111315] font-extrabold text-xs sm:text-sm shadow-md transition cursor-pointer"
+        >
+          <span>🛒</span>
+          <span class="hidden sm:inline">Savat</span>
+          <span id="headerCartCount" class="px-2 py-0.5 rounded-full bg-[#111315] text-[#FFD60A] text-xs font-black">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="bg-[#111315] text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(circle_at_top_right,#FF5A1F,transparent_55%),radial-gradient(circle_at_bottom_left,#FFD60A,transparent_45%)]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-11 relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+      <div class="max-w-2xl space-y-3">
+        <div class="inline-flex flex-wrap items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-[#FFD60A]">
+          <span>🔥 Yangi tayyorlangan</span>
+          <span>•</span>
+          <span>🛵 Yetkazib berish mutlaqo BEPUL</span>
+          <span>•</span>
+          <span>🏃 Olib ketish mavjud</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          Haqiqiy ta'm va issiq <span class="text-[#FFD60A]">Panda Burger</span> eshigingizgacha!
+        </h2>
+        <p class="text-sm sm:text-base text-gray-300 leading-relaxed">
+          Menyudan sevimli burger, lavash, pitsa yoki rollarni tanlang, manzil va telefon raqamingizni kiriting — buyurtmangiz darhol oshxonaga va Telegram botimizga tushadi.
+        </p>
+      </div>
+
+      <!-- Quick Info Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2.5 w-full lg:w-80 shrink-0">
+        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+          <span class="text-2xl">🚚</span>
+          <div>
+            <p class="text-xs text-gray-400">Yetkazib berish</p>
+            <p class="text-sm font-extrabold text-emerald-400">0 so'm (BEPUL)</p>
+          </div>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+          <span class="text-2xl">💳</span>
+          <div>
+            <p class="text-xs text-gray-400">To'lov turlari</p>
+            <p class="text-sm font-extrabold text-[#FFD60A]">Click / Naxt pul</p>
+          </div>
+        </div>
+        <div class="col-span-2 sm:col-span-1 p-3.5 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-3">
+          <span class="text-2xl">⏱️</span>
+          <div>
+            <p class="text-xs text-gray-400">O'rtacha vaqt</p>
+            <p class="text-sm font-extrabold text-white">25 – 35 daqiqa</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-28">
+    <!-- Category Pills & Search -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="categoryTabs">
+        <!-- Category buttons injected via JS -->
+      </div>
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <div class="relative flex-1 sm:w-64">
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Taom qidirish..."
+            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#FFD60A] focus:border-transparent shadow-sm"
+          />
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        </div>
+        <button
+          id="clientRefreshMenuBtn"
+          type="button"
+          title="Menyuni jonli yangilash"
+          class="shrink-0 p-2.5 rounded-xl bg-white hover:bg-amber-50 border border-gray-200 text-gray-700 text-sm font-bold shadow-sm transition cursor-pointer"
+        >
+          🔄
+        </button>
+      </div>
+    </div>
+
+    <!-- Menu Grid -->
+    <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+      <!-- Dish cards injected via JS -->
+    </div>
+
+    <!-- Empty Menu Search State -->
+    <div id="emptyMenuState" class="hidden text-center py-16 bg-white rounded-3xl border border-gray-200/80 shadow-sm">
+      <div class="text-5xl mb-3">🍔</div>
+      <h3 class="text-lg font-extrabold text-gray-900">Hech qanday taom topilmadi</h3>
+      <p class="text-sm text-gray-500 mt-1">Boshqa kategoriya yoki qidiruv so'zini sinab ko'ring.</p>
+    </div>
+
+    <!-- Recent Orders History Section (Customer View) -->
+    <section id="recentOrdersSection" class="mt-12 hidden">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg sm:text-xl font-black text-[#111315] flex items-center gap-2">
+          <span>🧾</span>
+          <span>Oxirgi yuborilgan buyurtmalaringiz</span>
+        </h3>
+        <span class="text-xs text-gray-500">Chek nusxasini ko'rish mumkin</span>
+      </div>
+      <div id="recentOrdersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+  </main>
+
+  <!-- Floating Bottom Cart Bar (Mobile & Desktop Quick Access) -->
+  <div id="floatingCartBar" class="fixed bottom-4 inset-x-4 z-30 max-w-2xl mx-auto hidden">
+    <button
+      id="openCartFloatingBtn"
+      type="button"
+      class="w-full py-3.5 px-5 rounded-2xl bg-[#111315] hover:bg-black text-white shadow-2xl border border-white/15 flex items-center justify-between transition cursor-pointer"
+    >
+      <div class="flex items-center gap-3">
+        <span id="floatingCartCount" class="w-8 h-8 rounded-xl bg-[#FFD60A] text-[#111315] font-black text-sm flex items-center justify-center">0</span>
+        <div class="text-left">
+          <p class="text-xs text-gray-400 leading-none">Savatni ko'rish va zakaz berish</p>
+          <p class="text-sm font-extrabold text-emerald-400 mt-0.5">Yetkazish: BEPUL</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="floatingCartTotal" class="font-black text-base sm:text-lg text-[#FFD60A]">0 so'm</span>
+        <span class="text-lg">→</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- CART & CHECKOUT DRAWER MODAL -->
+  <div id="cartDrawerOverlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex justify-end">
+    <div id="cartDrawerPanel" class="w-full max-w-lg bg-white h-full flex flex-col shadow-2xl overflow-hidden animate-pop-in">
+      <!-- Drawer Header -->
+      <div class="px-5 py-4 bg-[#111315] text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🛒</span>
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg leading-tight">Buyurtmani rasmiylashtirish</h3>
+            <p class="text-xs text-gray-400">Buyurtma darhol Telegram botga yuboriladi</p>
+          </div>
+        </div>
+        <button id="closeCartDrawerBtn" type="button" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-lg font-bold cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Drawer Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+        <!-- Cart Items List -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-gray-500">Tanlangan taomlar</h4>
+            <button id="clearCartBtn" type="button" class="text-xs font-semibold text-red-600 hover:underline hidden cursor-pointer">
+              Savatni tozalash
+            </button>
+          </div>
+          <div id="cartItemsContainer" class="space-y-2.5">
+            <!-- Cart items injected here -->
+          </div>
+        </div>
+
+        <!-- Checkout Form -->
+        <form id="checkoutForm" class="space-y-4 pt-3 border-t border-gray-200">
+          <!-- Order Type: Free Delivery vs Pickup -->
+          <div>
+            <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600 mb-2">
+              1. Qabul qilish turi
+            </label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                data-order-type="delivery"
+                class="order-type-btn p-3 rounded-2xl border-2 border-[#111315] bg-[#FFD60A]/20 text-left transition cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xl">🚚</span>
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-black">BEPUL</span>
+                </div>
+                <p class="font-extrabold text-sm text-[#111315] mt-1">Yetkazib berish</p>
+                <p class="text-[11px] text-gray-600">Manzilingizgacha bepul</p>
+              </button>
+
+              <button
+                type="button"
+                data-order-type="pickup"
+                class="order-type-btn p-3 rounded-2xl border-2 border-gray-200 bg-white text-left transition cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xl">🏃</span>
+                  <span class="px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[10px] font-bold">O'zingiz</span>
+                </div>
+                <p class="font-extrabold text-sm text-[#111315] mt-1">Olib ketish</p>
+                <p class="text-[11px] text-gray-600">Filialdan olib ketish</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Customer Details -->
+          <div class="space-y-3">
+            <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600">
+              2. Mijoz ma'lumotlari
+            </label>
+
+            <div>
+              <label for="customerName" class="block text-xs font-bold text-gray-700 mb-1">Ismingiz *</label>
+              <input
+                id="customerName"
+                type="text"
+                required
+                placeholder="Masalan: Olimjon"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+              />
+            </div>
+
+            <div>
+              <label for="customerPhone" class="block text-xs font-bold text-gray-700 mb-1">Telefon raqamingiz *</label>
+              <input
+                id="customerPhone"
+                type="tel"
+                required
+                placeholder="+998 93 373 10 19"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+              />
+            </div>
+
+            <!-- Address Field (Required for Delivery) -->
+            <div id="deliveryAddressGroup">
+              <div class="flex items-center justify-between mb-1">
+                <label for="customerAddress" class="block text-xs font-bold text-gray-700">Yetkazib berish manzili *</label>
+                <button
+                  type="button"
+                  id="detectLocationBtn"
+                  class="text-[11px] font-bold text-[#FF5A1F] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <span>📍</span>
+                  <span>Joylashuvni aniqlash</span>
+                </button>
+              </div>
+              <input
+                id="customerAddress"
+                type="text"
+                required
+                placeholder="Ko'cha, uy, mo'ljal (Masalan: Chorsu, 14-uy)"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+              />
+            </div>
+
+            <div>
+              <label for="customerNote" class="block text-xs font-bold text-gray-700 mb-1">Izoh (ixtiyoriy)</label>
+              <input
+                id="customerNote"
+                type="text"
+                placeholder="Masalan: Achchiq bo'lsin, sous ko'proq..."
+                class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+              />
+            </div>
+          </div>
+
+          <!-- Payment Method: Click vs Cash -->
+          <div class="space-y-3">
+            <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-600">
+              3. To'lov turi
+            </label>
+            <div class="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                data-payment="click"
+                class="payment-btn p-3 rounded-2xl border-2 border-[#111315] bg-sky-50 text-left transition cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xl">💳</span>
+                  <span class="px-2 py-0.5 rounded-full bg-sky-600 text-white text-[10px] font-black">CLICK</span>
+                </div>
+                <p class="font-extrabold text-sm text-[#111315] mt-1">Click (Karta orqali)</p>
+                <p class="text-[11px] text-gray-600">Chekni yuklaysiz</p>
+              </button>
+
+              <button
+                type="button"
+                data-payment="cash"
+                class="payment-btn p-3 rounded-2xl border-2 border-gray-200 bg-white text-left transition cursor-pointer"
+              >
+                <div class="flex items-center justify-between">
+                  <span class="text-xl">💵</span>
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Naxt</span>
+                </div>
+                <p class="font-extrabold text-sm text-[#111315] mt-1">Naxt pul</p>
+                <p class="text-[11px] text-gray-600">Qabul qilganda to'lov</p>
+              </button>
+            </div>
+
+            <!-- Click Card Box + Receipt Upload -->
+            <div id="clickPaymentBox" class="p-4 rounded-2xl bg-gradient-to-br from-[#111315] to-[#1f2429] text-white space-y-3 shadow-md">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Click / Uzcard / Humo Karta</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-200">To'lov kartasi</span>
+              </div>
+
+              <div class="p-3 rounded-xl bg-white/10 border border-white/15 flex items-center justify-between gap-2">
+                <div>
+                  <p id="cardNumberDisplay" class="font-mono font-black text-base sm:text-lg tracking-wider text-[#FFD60A]">
+                    9860 0201 3042 9374
+                  </p>
+                  <p class="text-xs sm:text-sm font-bold text-white mt-0.5">Jobirxon Egamberdiev</p>
+                </div>
+                <button
+                  type="button"
+                  id="copyCardBtn"
+                  class="px-3 py-2 rounded-xl bg-[#FFD60A] hover:bg-[#f2ca00] text-[#111315] text-xs font-extrabold shrink-0 transition cursor-pointer"
+                >
+                  📋 Nusxalash
+                </button>
+              </div>
+
+              <!-- Receipt Upload -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-gray-200">
+                  To'lov cheki rasmini yuklang (Admin tekshiradi) *
+                </label>
+                <label
+                  for="receiptFileInput"
+                  class="flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-dashed border-sky-400/60 bg-sky-500/10 hover:bg-sky-500/20 transition cursor-pointer text-center"
+                >
+                  <span class="text-2xl mb-1">🧾</span>
+                  <span id="receiptUploadLabel" class="text-xs font-bold text-sky-300">
+                    Chek skrinshotini tanlash uchun bosing
+                  </span>
+                  <span class="text-[11px] text-gray-400 mt-0.5">JPG, PNG, WEBP rasmlar</span>
+                  <input id="receiptFileInput" type="file" accept="image/*" class="hidden" />
+                </label>
+
+                <!-- Receipt Preview -->
+                <div id="receiptPreviewWrapper" class="hidden relative rounded-xl overflow-hidden border border-white/20 bg-black/40 p-2">
+                  <div class="flex items-center gap-3">
+                    <img id="receiptPreviewImg" src="" alt="To'lov cheki" class="w-16 h-16 object-cover rounded-lg border border-white/20" />
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-bold text-emerald-400 truncate">✅ Chek ilova qilindi</p>
+                      <p id="receiptFileName" class="text-[11px] text-gray-300 truncate">chek.jpg</p>
+                    </div>
+                    <button
+                      type="button"
+                      id="removeReceiptBtn"
+                      class="px-2.5 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-300 text-xs font-bold cursor-pointer"
+                    >
+                      O'chirish
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Box -->
+          <div class="p-4 rounded-2xl bg-gray-100 space-y-2 text-sm">
+            <div class="flex justify-between text-gray-600">
+              <span>Taomlar narxi:</span>
+              <span id="summarySubtotal" class="font-bold text-gray-900">0 so'm</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Yetkazib berish:</span>
+              <span id="summaryDelivery" class="font-extrabold text-emerald-600">Bepul</span>
+            </div>
+            <div class="flex justify-between text-base font-black text-[#111315] pt-2 border-t border-gray-200">
+              <span>JAMI TO'LOV:</span>
+              <span id="summaryTotal">0 so'm</span>
+            </div>
+          </div>
+
+          <!-- Submit Order Button -->
+          <button
+            type="submit"
+            id="submitOrderBtn"
+            class="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#FF5A1F] to-[#e04810] hover:brightness-110 text-white font-black text-base shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>🚀</span>
+            <span>Buyurtmani Yuborish</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER RECEIPT & TELEGRAM CONFIRMATION MODAL -->
+  <div id="receiptModalOverlay" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl animate-pop-in">
+      <div class="p-5 bg-[#111315] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">🐼</span>
+          <div>
+            <h3 class="font-black text-base">Buyurtma Cheki</h3>
+            <p id="telegramSendStatusText" class="text-xs text-emerald-400 font-semibold">Telegram botga yuborildi ✓</p>
+          </div>
+        </div>
+        <button id="closeReceiptModalBtn" type="button" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+        <!-- Generated Scannable Barcode Preview -->
+        <div class="bg-white border border-gray-200 rounded-2xl p-3 flex flex-col items-center">
+          <canvas id="orderBarcodeCanvas" class="max-w-full h-auto"></canvas>
+        </div>
+
+        <!-- Formatted Telegram Receipt Preview -->
+        <pre id="formattedReceiptPreview" class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 text-xs font-mono whitespace-pre-wrap text-gray-800 leading-relaxed"></pre>
+
+        <div id="telegramFallbackNotice" class="hidden p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900">
+          ⚠️ Eslatma: Telegram botga to'g'ridan-to'g'ri yuborish uchun <b>Admin Panel → Telegram Bot Sozlamalari</b> bo'limida Bot Token va Chat ID to'g'ri kiritilganligini tekshiring. Quyidagi tugma orqali chekni nusxalab yuborishingiz ham mumkin.
+        </div>
+
+        <div class="flex gap-2.5">
+          <button
+            type="button"
+            id="copyReceiptTextBtn"
+            class="flex-1 py-3 px-4 rounded-xl bg-[#111315] text-white font-bold text-xs sm:text-sm hover:bg-black transition cursor-pointer"
+          >
+            📋 Chekni nusxalash
+          </button>
+          <button
+            type="button"
+            id="doneReceiptBtn"
+            class="flex-1 py-3 px-4 rounded-xl bg-[#FFD60A] text-[#111315] font-extrabold text-xs sm:text-sm hover:bg-[#f2ca00] transition cursor-pointer"
+          >
+            Yopish
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL MODAL -->
+  <div id="adminModalOverlay" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs hidden items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[94vh] flex flex-col overflow-hidden shadow-2xl animate-pop-in">
+      <!-- Admin Top Bar -->
+      <div class="px-5 py-4 bg-[#111315] text-white flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+          <span class="w-10 h-10 rounded-xl bg-[#FFD60A] text-[#111315] flex items-center justify-center text-xl font-black">⚙️</span>
+          <div>
+            <h3 class="font-black text-base sm:text-lg">Panda Burger — Admin Panel</h3>
+            <p class="text-xs text-gray-400">Menyu qo'shish, narxlarni o'zgartirish, moliya va buyurtmalar</p>
+          </div>
+        </div>
+        <button id="closeAdminModalBtn" type="button" class="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <!-- Admin Login Screen -->
+      <div id="adminLoginScreen" class="p-6 sm:p-10 flex flex-col items-center justify-center text-center space-y-4">
+        <div class="w-16 h-16 rounded-2xl bg-[#FFD60A]/20 text-3xl flex items-center justify-center">🔐</div>
+        <div>
+          <h4 class="text-lg font-black text-[#111315]">Admin kirish</h4>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1">
+            Menyuni tahrirlash va buyurtmalarni boshqarish uchun PIN kodni kiriting (Boshlang'ich PIN: <b class="text-gray-800">1234</b>)
+          </p>
+        </div>
+        <form id="adminLoginForm" class="w-full max-w-xs space-y-3">
+          <input
+            id="adminPinInput"
+            type="password"
+            inputmode="numeric"
+            placeholder="PIN kod (1234)"
+            class="w-full text-center tracking-widest text-lg font-black px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+          />
+          <button
+            type="submit"
+            class="w-full py-3 rounded-xl bg-[#111315] hover:bg-black text-[#FFD60A] font-extrabold text-sm transition cursor-pointer"
+          >
+            Kirish
+          </button>
+          <button
+            type="button"
+            id="quickOwnerLoginBtn"
+            class="w-full py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 font-bold text-xs transition cursor-pointer"
+          >
+            ⚡ Tezkor kirish (1234)
+          </button>
+        </form>
+      </div>
+
+      <!-- Admin Dashboard Content (Hidden until logged in) -->
+      <div id="adminDashboardContent" class="hidden flex-1 flex flex-col overflow-hidden">
+        <!-- Admin Tabs -->
+        <div class="px-5 pt-3 bg-gray-100 border-b border-gray-200 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+          <button
+            type="button"
+            data-admin-tab="menu"
+            class="admin-tab-btn px-4 py-2.5 rounded-t-xl font-extrabold text-xs sm:text-sm bg-white text-[#111315] border-t border-x border-gray-200 cursor-pointer shrink-0"
+          >
+            🍔 Menyu va Narxlar
+          </button>
+          <button
+            type="button"
+            data-admin-tab="finance"
+            class="admin-tab-btn px-4 py-2.5 rounded-t-xl font-bold text-xs sm:text-sm text-gray-600 hover:text-[#111315] cursor-pointer shrink-0"
+          >
+            💰 Moliya, Savdo va Rashod
+          </button>
+          <button
+            type="button"
+            data-admin-tab="orders"
+            class="admin-tab-btn px-4 py-2.5 rounded-t-xl font-bold text-xs sm:text-sm text-gray-600 hover:text-[#111315] cursor-pointer shrink-0"
+          >
+            🧾 Kelgan Buyurtmalar (<span id="adminOrdersBadge">0</span>)
+          </button>
+          <button
+            type="button"
+            data-admin-tab="settings"
+            class="admin-tab-btn px-4 py-2.5 rounded-t-xl font-bold text-xs sm:text-sm text-gray-600 hover:text-[#111315] cursor-pointer shrink-0"
+          >
+            🤖 Telegram Bot & Realtime DB
+          </button>
+        </div>
+
+        <!-- Tab 1: Menu Management -->
+        <div id="adminTabMenu" class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+          <!-- Live Sync Status Banner -->
+          <div class="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <span id="adminLiveSyncIndicator" class="text-xs sm:text-sm font-extrabold text-emerald-900">
+              🟢 Jonli sinxronizatsiya: Faol — Admin o'zgarishlari barcha klentlarda darhol ko'rinadi
+            </span>
+            <button
+              type="button"
+              id="forceSyncAllBtn"
+              class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold transition cursor-pointer"
+            >
+              ⚡ Klentlarga hozir sinxronlash
+            </button>
+          </div>
+
+          <!-- Add / Edit Dish Form -->
+          <form id="dishForm" class="p-4 sm:p-5 rounded-2xl bg-amber-50/70 border-2 border-[#FFD60A] space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 id="dishFormTitle" class="font-black text-sm sm:text-base text-[#111315]">
+                ➕ Yangi menyu / taom qo'shish
+              </h4>
+              <button
+                type="button"
+                id="cancelEditDishBtn"
+                class="hidden text-xs font-bold text-gray-500 hover:text-gray-800 underline cursor-pointer"
+              >
+                Bekor qilish
+              </button>
+            </div>
+
+            <input type="hidden" id="editDishId" value="" />
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Taom nomi *</label>
+                <input
+                  id="dishNameInput"
+                  type="text"
+                  required
+                  placeholder="Masalan: Panda Double Burger"
+                  class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#111315]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Narxi (so'm) *</label>
+                <input
+                  id="dishPriceInput"
+                  type="number"
+                  min="1000"
+                  step="500"
+                  required
+                  placeholder="38000"
+                  class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#111315]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Kategoriya *</label>
+                <select
+                  id="dishCategoryInput"
+                  class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#111315]"
+                >
+                  <option value="Burgerlar">🍔 Burgerlar</option>
+                  <option value="Hot-Doglar">🌭 Hot-Doglar</option>
+                  <option value="Lavash va Doner">🌯 Lavash va Doner</option>
+                  <option value="Pitsa">🍕 Pitsa</option>
+                  <option value="Rollar va Sushi">🍣 Rollar va Sushi</option>
+                  <option value="Kombo va Ichimliklar">🥤 Kombo va Ichimliklar</option>
+                  <option value="__custom__">➕ Yangi kategoriya yozish...</option>
+                </select>
+                <input
+                  id="customCategoryInput"
+                  type="text"
+                  placeholder="Yangi kategoriya nomi..."
+                  class="hidden mt-2 w-full px-3 py-2 rounded-xl bg-white border border-[#FF5A1F] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-[#FF5A1F]"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Emoji yoki Rasm</label>
+                <div class="flex items-center gap-1.5">
+                  <input
+                    id="dishEmojiInput"
+                    type="text"
+                    placeholder="🍔"
+                    value="🍔"
+                    class="w-16 text-center px-2 py-2.5 rounded-xl bg-white border border-gray-300 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-[#111315]"
+                  />
+                  <label
+                    for="dishPhotoFileInput"
+                    class="flex-1 text-center px-2.5 py-2.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-xs font-bold text-gray-700 cursor-pointer transition truncate"
+                  >
+                    📷 Rasm yuklash
+                  </label>
+                  <input id="dishPhotoFileInput" type="file" accept="image/*" class="hidden" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Emoji Picker + Optional Image URL -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-600 mb-1">Tezkor emoji tanlash:</label>
+                <div id="quickEmojiPicker" class="flex flex-wrap gap-1.5">
+                  <button type="button" data-emoji="🍔" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍔</button>
+                  <button type="button" data-emoji="🌭" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🌭</button>
+                  <button type="button" data-emoji="🌯" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🌯</button>
+                  <button type="button" data-emoji="🍕" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍕</button>
+                  <button type="button" data-emoji="🍣" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍣</button>
+                  <button type="button" data-emoji="🍟" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍟</button>
+                  <button type="button" data-emoji="🍗" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍗</button>
+                  <button type="button" data-emoji="🥤" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🥤</button>
+                  <button type="button" data-emoji="🥗" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🥗</button>
+                  <button type="button" data-emoji="🍰" class="emoji-pick-btn w-8 h-8 rounded-lg bg-white hover:bg-[#FFD60A] border border-gray-200 text-base cursor-pointer">🍰</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-bold text-gray-600 mb-1">Yoki taom rasm havolasi (URL, ixtiyoriy):</label>
+                <div class="flex items-center gap-2">
+                  <input
+                    id="dishImageUrlInput"
+                    type="text"
+                    placeholder="https://... (yoki rasm yuklang)"
+                    class="flex-1 px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-[#111315]"
+                  />
+                  <button
+                    type="button"
+                    id="clearDishImageBtn"
+                    class="hidden px-2.5 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div id="dishImagePreviewBox" class="hidden mt-2 flex items-center gap-2">
+                  <img id="dishImagePreviewImg" src="" alt="Taom rasmi" class="w-11 h-11 rounded-xl object-cover border border-gray-300" />
+                  <span class="text-[11px] font-bold text-emerald-700">✓ Rasm tayyor</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Taom tarkibi / tavsifi</label>
+              <input
+                id="dishDescInput"
+                type="text"
+                placeholder="Masalan: Shirali mol go'shti, cheddar pishloq, maxsus sous, yangi sabzavotlar..."
+                class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#111315]"
+              />
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <label class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-700 cursor-pointer">
+                <input id="dishAvailableInput" type="checkbox" checked class="w-4 h-4 accent-[#111315] rounded" />
+                <span>Mijozlar saytida sotuvda (mavjud)</span>
+              </label>
+
+              <button
+                type="submit"
+                id="saveDishBtn"
+                class="px-5 py-3 rounded-xl bg-[#111315] hover:bg-black text-[#FFD60A] font-extrabold text-xs sm:text-sm shadow-md transition cursor-pointer"
+              >
+                ➕ Menyuga Qo'shish va Klentlarga Ko'rsatish
+              </button>
+            </div>
+          </form>
+
+          <!-- Existing Menu Items List -->
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <h4 class="font-extrabold text-sm sm:text-base text-[#111315]">
+                Mavjud taomlar ro'yxati (<span id="adminMenuCount">0</span> ta)
+              </h4>
+              <div class="flex items-center gap-2">
+                <input
+                  id="adminMenuSearchInput"
+                  type="text"
+                  placeholder="Admin menyudan qidirish..."
+                  class="px-3 py-1.5 rounded-xl bg-gray-100 border border-gray-300 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+                />
+                <button
+                  type="button"
+                  id="resetDefaultMenuBtn"
+                  class="text-xs font-semibold text-gray-500 hover:text-red-600 underline cursor-pointer"
+                >
+                  Standart menyuga qaytarish
+                </button>
+              </div>
+            </div>
+            <div id="adminMenuList" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Finance, Sales, Click & Expenses -->
+        <div id="adminTabFinance" class="hidden p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-100 p-3.5 rounded-2xl border border-gray-200">
+            <div class="flex items-center gap-1.5 flex-wrap" id="financePeriodTabs">
+              <button type="button" data-fin-period="today" class="fin-period-btn px-3.5 py-2 rounded-xl text-xs font-extrabold bg-[#111315] text-[#FFD60A] cursor-pointer">
+                Bugun
+              </button>
+              <button type="button" data-fin-period="week" class="fin-period-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-gray-700 hover:bg-gray-200 cursor-pointer">
+                Shu hafta (7 kun)
+              </button>
+              <button type="button" data-fin-period="month" class="fin-period-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-gray-700 hover:bg-gray-200 cursor-pointer">
+                Shu oy (30 kun)
+              </button>
+              <button type="button" data-fin-period="all" class="fin-period-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-gray-700 hover:bg-gray-200 cursor-pointer">
+                Barchasi
+              </button>
+            </div>
+            <div class="text-xs font-bold text-gray-600">
+              📊 Bekor qilingan buyurtmalar savdoga qo'shilmaydi
+            </div>
+          </div>
+
+          <!-- 5 Summary KPI Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="p-4 rounded-2xl bg-[#111315] text-white shadow-md">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400">💰 Jami Savdo</p>
+              <p id="finTotalSales" class="text-lg sm:text-xl font-black text-[#FFD60A] mt-1">0 so'm</p>
+              <p id="finTotalOrdersCount" class="text-[11px] text-gray-400 mt-1">0 ta buyurtma</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-sky-50 border border-sky-200">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-sky-700">💳 Click Tushum</p>
+              <p id="finClickSales" class="text-lg sm:text-xl font-black text-sky-900 mt-1">0 so'm</p>
+              <p id="finClickCount" class="text-[11px] text-sky-700 mt-1">0 ta Click to'lov</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-700">💵 Naxt Tushum</p>
+              <p id="finCashSales" class="text-lg sm:text-xl font-black text-emerald-900 mt-1">0 so'm</p>
+              <p id="finCashCount" class="text-[11px] text-emerald-700 mt-1">0 ta Naxt to'lov</p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-red-50 border border-red-200">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-red-700">📉 Jami Rashod</p>
+              <p id="finTotalExpenses" class="text-lg sm:text-xl font-black text-red-700 mt-1">0 so'm</p>
+              <p id="finExpensesBreakdown" class="text-[11px] text-red-600 mt-1">Click: 0 • Naxt: 0</p>
+            </div>
+
+            <div id="finNetProfitCard" class="p-4 rounded-2xl bg-amber-50 border-2 border-[#FFD60A]">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-gray-700">📈 Sof Foyda (Qoldiq)</p>
+              <p id="finNetProfit" class="text-lg sm:text-xl font-black text-emerald-700 mt-1">0 so'm</p>
+              <p id="finNetBalances" class="text-[11px] text-gray-600 mt-1">Click: 0 • Naxt: 0</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Left: Add Expense + Manual Sale -->
+            <div class="lg:col-span-5 space-y-5">
+              <form id="expenseForm" class="p-4 sm:p-5 rounded-2xl bg-red-50/60 border border-red-200 space-y-3.5">
+                <h4 class="font-black text-sm sm:text-base text-[#111315] flex items-center gap-2">
+                  <span>➖</span>
+                  <span>Yangi Rashod (Xarajat) Qo'shish</span>
+                </h4>
+
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">Rashod nomi / Nima uchun *</label>
+                  <input
+                    id="expenseTitleInput"
+                    type="text"
+                    required
+                    placeholder="Masalan: Mol go'shti, Non, Souslar, Kuryer..."
+                    class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                  <div class="flex flex-wrap gap-1 mt-1.5" id="quickExpenseChips">
+                    <button type="button" data-exp-chip="Go'sht va tovuq" class="exp-chip-btn px-2 py-1 rounded-lg bg-white border border-gray-200 hover:bg-red-100 text-[11px] font-bold cursor-pointer">🥩 Go'sht</button>
+                    <button type="button" data-exp-chip="Bulochka va lavash" class="exp-chip-btn px-2 py-1 rounded-lg bg-white border border-gray-200 hover:bg-red-100 text-[11px] font-bold cursor-pointer">🍞 Non</button>
+                    <button type="button" data-exp-chip="Sabzavot va souslar" class="exp-chip-btn px-2 py-1 rounded-lg bg-white border border-gray-200 hover:bg-red-100 text-[11px] font-bold cursor-pointer">🥬 Sabzavot</button>
+                    <button type="button" data-exp-chip="Kuryer va benzin" class="exp-chip-btn px-2 py-1 rounded-lg bg-white border border-gray-200 hover:bg-red-100 text-[11px] font-bold cursor-pointer">🛵 Kuryer</button>
+                    <button type="button" data-exp-chip="Ijara va kommunal" class="exp-chip-btn px-2 py-1 rounded-lg bg-white border border-gray-200 hover:bg-red-100 text-[11px] font-bold cursor-pointer">🏢 Ijara</button>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Summasi (so'm) *</label>
+                    <input
+                      id="expenseAmountInput"
+                      type="number"
+                      min="500"
+                      step="500"
+                      required
+                      placeholder="150000"
+                      class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-400"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Qaysi hisobdan *</label>
+                    <select
+                      id="expenseSourceInput"
+                      class="w-full px-3 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-400"
+                    >
+                      <option value="cash">💵 Naxt puldan</option>
+                      <option value="click">💳 Click kartadan</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">Izoh (ixtiyoriy)</label>
+                  <input
+                    id="expenseNoteInput"
+                    type="text"
+                    placeholder="Masalan: 5 kg mol go'shti bozordan"
+                    class="w-full px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs sm:text-sm shadow transition cursor-pointer"
+                >
+                  ➕ Rashodni Saqlash
+                </button>
+              </form>
+
+              <!-- Quick Walk-in / POS Sale Recorder -->
+              <form id="manualSaleForm" class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+                <h4 class="font-black text-xs sm:text-sm text-[#111315] flex items-center gap-2">
+                  <span>➕</span>
+                  <span>Joyida (Kassa) Savdo Qo'shish</span>
+                </h4>
+                <div class="grid grid-cols-2 gap-2">
+                  <input
+                    id="manualSaleAmountInput"
+                    type="number"
+                    min="1000"
+                    step="500"
+                    required
+                    placeholder="Summa (so'm)"
+                    class="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs font-bold"
+                  />
+                  <select id="manualSalePaymentInput" class="px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs font-bold">
+                    <option value="cash">💵 Naxt pul</option>
+                    <option value="click">💳 Click</option>
+                  </select>
+                </div>
+                <div class="flex gap-2">
+                  <input
+                    id="manualSaleNoteInput"
+                    type="text"
+                    placeholder="Izoh (Masalan: Zal mijozi)"
+                    class="flex-1 px-3 py-2 rounded-xl bg-white border border-gray-300 text-xs font-medium"
+                  />
+                  <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs cursor-pointer">
+                    Qo'shish
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Right: Expenses List & Recent Sales List -->
+            <div class="lg:col-span-7 space-y-5">
+              <div class="p-4 rounded-2xl bg-white border border-gray-200 space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-extrabold text-sm text-[#111315]">
+                    📉 Rashodlar ro'yxati (<span id="expensesListCount">0</span> ta)
+                  </h4>
+                </div>
+                <div id="expensesListContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-white border border-gray-200 space-y-3">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-extrabold text-sm text-[#111315]">
+                    🧾 Savdo va Click tushumlari (<span id="financeSalesCount">0</span> ta)
+                  </h4>
+                </div>
+                <div id="financeSalesListContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Orders Management -->
+        <div id="adminTabOrders" class="hidden p-4 sm:p-6 overflow-y-auto flex-1 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="font-extrabold text-base text-[#111315]">Kelgan buyurtmalar va to'lov cheklari</h4>
+            <button
+              type="button"
+              id="clearAllOrdersBtn"
+              class="text-xs font-bold text-red-600 hover:underline cursor-pointer"
+            >
+              Tarixni tozalash
+            </button>
+          </div>
+          <div id="adminOrdersList" class="space-y-3"></div>
+        </div>
+
+        <!-- Tab 4: Telegram Bot & Realtime DB Settings -->
+        <div id="adminTabSettings" class="hidden p-4 sm:p-6 overflow-y-auto flex-1 space-y-5">
+          <!-- Telegram Bot Settings -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-sky-50 border border-sky-200 space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">🤖</span>
+                <div>
+                  <h4 class="font-black text-base text-[#111315]">Telegram Bot Sozlamalari</h4>
+                  <p class="text-xs text-gray-600">Mijoz zakaz berganda chek va rasm shu botga boradi</p>
+                </div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">🟢 Faol</span>
+            </div>
+
+            <form id="botSettingsForm" class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Telegram Bot Token *</label>
+                <input
+                  id="botTokenInput"
+                  type="text"
+                  required
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">Admin Chat ID *</label>
+                  <input
+                    id="botChatIdInput"
+                    type="text"
+                    required
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-gray-700 mb-1">Admin Panel PIN kodi</label>
+                  <input
+                    id="newAdminPinInput"
+                    type="text"
+                    maxlength="8"
+                    placeholder="1234"
+                    class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2.5 pt-1">
+                <button
+                  type="submit"
+                  class="px-5 py-2.5 rounded-xl bg-[#111315] hover:bg-black text-[#FFD60A] font-extrabold text-xs sm:text-sm cursor-pointer"
+                >
+                  💾 Bot Sozlamalarini Saqlash
+                </button>
+                <button
+                  type="button"
+                  id="testBotBtn"
+                  class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs sm:text-sm cursor-pointer"
+                >
+                  📨 Test xabar yuborish
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Realtime Database Settings -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-200 space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div class="flex items-center gap-2.5">
+                <span class="text-2xl">🔥</span>
+                <div>
+                  <h4 class="font-black text-base text-[#111315]">Firebase Realtime Database</h4>
+                  <p class="text-xs text-gray-600">Barcha mijoz qurilmalarida menyu va buyurtmalarni jonli sinxronlash</p>
+                </div>
+              </div>
+              <span id="rtdbStatusBadge" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">
+                🟢 Ulangan (Jonli RTDB)
+              </span>
+            </div>
+
+            <form id="rtdbSettingsForm" class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Firebase Realtime Database URL</label>
+                <input
+                  id="rtdbUrlInput"
+                  type="url"
+                  placeholder="https://your-project-default-rtdb.firebaseio.com"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Database Secret / Auth Token (ixtiyoriy)</label>
+                <input
+                  id="rtdbAuthInput"
+                  type="text"
+                  placeholder="Ochiq test bazasi uchun bo'sh qoldiring"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-gray-300 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+              <div class="flex flex-wrap gap-2.5">
+                <button
+                  type="submit"
+                  class="px-5 py-2.5 rounded-xl bg-[#111315] hover:bg-black text-[#FFD60A] font-extrabold text-xs sm:text-sm cursor-pointer"
+                >
+                  💾 Bazani Saqlash va Sinxronlash
+                </button>
+                <button
+                  type="button"
+                  id="pullRtdbNowBtn"
+                  class="px-4 py-2.5 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-gray-800 font-bold text-xs sm:text-sm cursor-pointer"
+                >
+                  🔄 Bazadan tortib olish
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT DISH MODAL -->
+  <div id="editDishModalOverlay" class="fixed inset-0 z-[60] bg-black/75 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl animate-pop-in">
+      <div class="px-5 py-4 bg-[#111315] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl">✏️</span>
+          <h3 class="font-black text-base">Taomni Tahrirlash</h3>
+        </div>
+        <button id="closeEditDishModalBtn" type="button" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center font-bold cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <form id="editDishModalForm" class="p-5 space-y-3.5 max-h-[82vh] overflow-y-auto">
+        <input type="hidden" id="modalEditDishId" />
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Taom nomi *</label>
+          <input
+            id="modalDishNameInput"
+            type="text"
+            required
+            class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+          />
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Narxi (so'm) *</label>
+            <input
+              id="modalDishPriceInput"
+              type="number"
+              min="500"
+              step="500"
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-black text-[#FF5A1F] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Kategoriya *</label>
+            <select
+              id="modalDishCategoryInput"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-sm font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+            ></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Emoji</label>
+            <input
+              id="modalDishEmojiInput"
+              type="text"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-300 text-base font-bold text-center focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 mb-1">Yangi rasm yuklash</label>
+            <label
+              for="modalDishPhotoFileInput"
+              class="block w-full text-center px-3 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-extrabold text-amber-900 cursor-pointer"
+            >
+              📷 Rasm tanlash
+            </label>
+            <input id="modalDishPhotoFileInput" type="file" accept="image/*" class="hidden" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Rasm havolasi (URL, ixtiyoriy)</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="modalDishImageUrlInput"
+              type="text"
+              placeholder="https://..."
+              class="flex-1 px-3 py-2 rounded-xl bg-gray-50 border border-gray-300 text-xs font-medium"
+            />
+            <button
+              type="button"
+              id="modalClearDishImageBtn"
+              class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 cursor-pointer"
+            >
+              Rasmni o'chirish
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Taom tarkibi / tavsifi</label>
+          <textarea
+            id="modalDishDescInput"
+            rows="2"
+            class="w-full px-3.5 py-2 rounded-xl bg-gray-50 border border-gray-300 text-xs sm:text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#FFD60A]"
+          ></textarea>
+        </div>
+
+        <label class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-800 cursor-pointer">
+          <input id="modalDishAvailableInput" type="checkbox" class="w-4 h-4 accent-[#111315] rounded" />
+          <span>Mijozlar saytida sotuvda mavjud</span>
+        </label>
+
+        <div class="flex gap-2.5 pt-2">
+          <button
+            type="button"
+            id="cancelModalEditBtn"
+            class="flex-1 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm cursor-pointer"
+          >
+            Bekor qilish
+          </button>
+          <button
+            type="submit"
+            class="flex-1 py-3 rounded-xl bg-[#111315] hover:bg-black text-[#FFD60A] font-extrabold text-xs sm:text-sm shadow cursor-pointer"
+          >
+            💾 Saqlash va Klentlarga Yuborish
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONFIRMATION DIALOG MODAL -->
+  <div id="confirmDialogOverlay" class="fixed inset-0 z-[70] bg-black/75 backdrop-blur-xs hidden items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl animate-pop-in text-center">
+      <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 text-2xl flex items-center justify-center mx-auto">🗑️</div>
+      <div>
+        <h4 id="confirmDialogTitle" class="font-black text-base text-[#111315]">O'chirishni tasdiqlang</h4>
+        <p id="confirmDialogMessage" class="text-xs sm:text-sm text-gray-600 mt-1">Haqiqatan ham o'chirmoqchimisiz?</p>
+      </div>
+      <div class="flex gap-2.5">
+        <button
+          type="button"
+          id="confirmDialogCancelBtn"
+          class="flex-1 py-2.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs sm:text-sm cursor-pointer"
+        >
+          Yo'q, qolsin
+        </button>
+        <button
+          type="button"
+          id="confirmDialogYesBtn"
+          class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs sm:text-sm cursor-pointer"
+        >
+          Ha, o'chirish
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[#111315] text-gray-400 border-t border-white/10 py-6 text-center text-xs">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p class="font-semibold text-white">🐼 PANDA BURGER — O'nhayot, Namangan</p>
+      <p>Yetkazib berish: <span class="text-emerald-400 font-bold">BEPUL</span> • Click: <span class="text-[#FFD60A] font-mono">9860 0201 3042 9374</span></p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // Pre-configured Telegram Bot Credentials
+      const DEFAULT_BOT_CONFIG = {
+        token: '9107695988:AAF4UvFrABPGcXKvwa2cqF2t-5f0i0uTIUk',
+        chatId: '8787865123',
+      };
+
+      // Pre-configured Firebase Realtime Database Endpoint
+      const DEFAULT_RTDB_CONFIG = {
+        url: 'https://panda-burger-live-default-rtdb.firebaseio.com',
+        auth: '',
+      };
+
+      const STORAGE_KEYS = {
+        MENU: 'panda_burger_menu_v3',
+        CART: 'panda_burger_cart_v3',
+        ORDERS: 'panda_burger_orders_v3',
+        EXPENSES: 'panda_burger_expenses_v3',
+        COUNTER: 'panda_burger_order_counter_v3',
+        BOT_CONFIG: 'panda_burger_bot_config_v3',
+        RTDB_CONFIG: 'panda_burger_rtdb_config_v3',
+        ADMIN_PIN: 'panda_burger_admin_pin_v3',
+      };
+
+      const SYNC_CHANNEL_NAME = 'panda_burger_live_sync_v3';
+      let syncChannel = null;
+      try {
+        if ('BroadcastChannel' in window) {
+          syncChannel = new BroadcastChannel(SYNC_CHANNEL_NAME);
+        }
+      } catch (e) {}
+
+      // Default Ready-to-Use Panda Burger Menu
+      const DEFAULT_MENU = [
+        {
+          id: 'pb-signature-burger',
+          name: 'Panda Signature Burger',
+          price: 36000,
+          category: 'Burgerlar',
+          emoji: '🍔',
+          imageUrl: '',
+          description: 'Shirali mol go\'shti kotleti, eritilgan cheddar pishloq, Panda maxsus sousi, yangi salat bargi va pomidor.',
+          available: true,
+        },
+        {
+          id: 'chicken-crispy-burger',
+          name: 'Chicken Crispy Burger',
+          price: 26000,
+          category: 'Burgerlar',
+          emoji: '🍗',
+          imageUrl: '',
+          description: 'Qarsildoq qovurilgan tovuq filesi, mayin sous, pishloq va yumshoq bulochka.',
+          available: true,
+        },
+        {
+          id: 'double-panda-cheeseburger',
+          name: 'Double Panda Cheeseburger',
+          price: 44000,
+          category: 'Burgerlar',
+          emoji: '🍔',
+          imageUrl: '',
+          description: 'Ikkita shirali mol go\'shti kotleti, qo\'sh pishloq, piyoz halqalari va maxsus gril sousi.',
+          available: true,
+        },
+        {
+          id: 'katletli-hoddok',
+          name: 'Katletli Hoddok',
+          price: 22000,
+          category: 'Hot-Doglar',
+          emoji: '🌭',
+          imageUrl: '',
+          description: 'Issiq bulochkada shirali kotlet, karam salati, ketchup va mayonez.',
+          available: true,
+        },
+        {
+          id: 'sirniy-hoddok',
+          name: 'Sirniy Hoddok',
+          price: 24000,
+          category: 'Hot-Doglar',
+          emoji: '🌭',
+          imageUrl: '',
+          description: 'Eritilgan pishloq sousi qo\'shilgan mazali hot-dog.',
+          available: true,
+        },
+        {
+          id: 'mangal-hoddok',
+          name: 'Mangal Hoddok',
+          price: 25000,
+          category: 'Hot-Doglar',
+          emoji: '🔥',
+          imageUrl: '',
+          description: 'Tutunli mangal ta\'miga ega maxsus hot-dog.',
+          available: true,
+        },
+        {
+          id: 'mol-goshtli-lavash',
+          name: 'Mol Go\'shtli Lavash',
+          price: 32000,
+          category: 'Lavash va Doner',
+          emoji: '🌯',
+          imageUrl: '',
+          description: 'Yupqa lavash xamirida mayin mol go\'shti, chips, pomidor, bodring va oq sous.',
+          available: true,
+        },
+        {
+          id: 'pishloqli-tovuq-lavash',
+          name: 'Pishloqli Tovuq Lavash',
+          price: 30000,
+          category: 'Lavash va Doner',
+          emoji: '🌯',
+          imageUrl: '',
+          description: 'Tovuq go\'shti va cheddar pishloq bilan o\'ralgan issiq lavash.',
+          available: true,
+        },
+        {
+          id: 'doner-kebab',
+          name: 'Doner Kebab Box',
+          price: 35000,
+          category: 'Lavash va Doner',
+          emoji: '🥙',
+          imageUrl: '',
+          description: 'Go\'sht, kartoshka fri, sabzavotlar va ikki xil sousli to\'yimli doner.',
+          available: true,
+        },
+        {
+          id: 'pepperoni-pitsa',
+          name: 'Pepperoni Pitsa',
+          price: 58000,
+          category: 'Pitsa',
+          emoji: '🍕',
+          imageUrl: '',
+          description: 'Mozzarella pishlog\'i, pepperoni kolbasasi va maxsus tomat sousli pitsa.',
+          available: true,
+        },
+        {
+          id: 'assorti-pitsa',
+          name: 'Panda Assorti Pitsa',
+          price: 64000,
+          category: 'Pitsa',
+          emoji: '🍕',
+          imageUrl: '',
+          description: 'Go\'sht, qo\'ziqorin, zaytun, bulg\'or qalampiri va ko\'p pishloqli pitsa.',
+          available: true,
+        },
+        {
+          id: 'goryachiy-kuritsa-roll',
+          name: 'Goryachiy Kuritsa Roll',
+          price: 34000,
+          category: 'Rollar va Sushi',
+          emoji: '🍣',
+          imageUrl: '',
+          description: 'Issiq qovurilgan tovuqli roll, krem pishloq va maxsus sous bilan.',
+          available: true,
+        },
+        {
+          id: 'zapichonniy-kuritsa-roll',
+          name: 'Zapichonniy Kuritsa Roll',
+          price: 36000,
+          category: 'Rollar va Sushi',
+          emoji: '🍱',
+          imageUrl: '',
+          description: 'Pishloq shapkasi ostida pishirilgan mazali tovuqli roll.',
+          available: true,
+        },
+        {
+          id: 'chicken-chiz-roll',
+          name: 'Chicken Chiz Roll',
+          price: 33000,
+          category: 'Rollar va Sushi',
+          emoji: '🍣',
+          imageUrl: '',
+          description: 'Tovuq va pishloqli yumshoq roll.',
+          available: true,
+        },
+        {
+          id: 'panda-kombo-box',
+          name: 'Panda Kombo Box',
+          price: 49000,
+          category: 'Kombo va Ichimliklar',
+          emoji: '📦',
+          imageUrl: '',
+          description: 'Burger + Kartoshka fri + Sous + Coca-Cola 0.5L.',
+          available: true,
+        },
+        {
+          id: 'kartoshka-fri-cola',
+          name: 'Kartoshka Fri + Cola',
+          price: 21000,
+          category: 'Kombo va Ichimliklar',
+          emoji: '🍟',
+          imageUrl: '',
+          description: 'Tilla tusli kartoshka fri va muzdek ichimlik.',
+          available: true,
+        },
+      ];
+
+      // Application State
+      let state = {
+        menu: [],
+        cart: [],
+        orders: [],
+        expenses: [],
+        orderCounter: 5323,
+        botConfig: { ...DEFAULT_BOT_CONFIG },
+        rtdbConfig: { ...DEFAULT_RTDB_CONFIG },
+        adminPin: '1234',
+        adminLoggedIn: false,
+        rtdbConnected: false,
+        selectedCategory: 'Barchasi',
+        searchQuery: '',
+        adminMenuSearch: '',
+        financePeriod: 'today',
+        orderType: 'delivery',
+        paymentMethod: 'click',
+        receiptDataUrl: null,
+        receiptFileName: '',
+        lastGeneratedText: '',
+      };
+
+      let pendingConfirmCallback = null;
+
+      // Utility Functions
+      function formatSom(num) {
+        const n = Number(num) || 0;
+        return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + " so'm";
+      }
+
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function getFormattedDateTime(dateObj = new Date()) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const dd = pad(dateObj.getDate());
+        const mm = pad(dateObj.getMonth() + 1);
+        const yyyy = dateObj.getFullYear();
+        const hh = pad(dateObj.getHours());
+        const min = pad(dateObj.getMinutes());
+        const ss = pad(dateObj.getSeconds());
+        return `${dd}/${mm}/${yyyy}, ${hh}:${min}:${ss}`;
+      }
+
+      function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        const bgClass =
+          type === 'error'
+            ? 'bg-red-600 text-white'
+            : type === 'info'
+            ? 'bg-[#111315] text-[#FFD60A] border border-[#FFD60A]/40'
+            : 'bg-[#111315] text-white border border-emerald-400/40';
+
+        toast.className = `${bgClass} px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold flex items-center gap-2.5 animate-pop-in pointer-events-auto`;
+        const icon = type === 'error' ? '❌' : type === 'info' ? '🔔' : '✅';
+        toast.innerHTML = `<span class="text-base shrink-0">${icon}</span><span>${escapeHtml(message)}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.25s ease';
+          setTimeout(() => toast.remove(), 260);
+        }, 3200);
+      }
+
+      function copyToClipboard(text, successMsg = 'Nusxalandi!') {
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(
+            () => showToast(successMsg),
+            () => fallbackCopy(text, successMsg)
+          );
+        } else {
+          fallbackCopy(text, successMsg);
+        }
+      }
+
+      function fallbackCopy(text, successMsg) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast(successMsg);
+        } catch (e) {
+          showToast('Nusxalab bo\'lmadi', 'error');
+        }
+        document.body.removeChild(ta);
+      }
+
+      // Load & Save State
+      function loadState() {
+        try {
+          const savedMenu = localStorage.getItem(STORAGE_KEYS.MENU);
+          if (savedMenu) {
+            const parsed = JSON.parse(savedMenu);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              state.menu = parsed;
+            } else {
+              state.menu = [...DEFAULT_MENU];
+            }
+          } else {
+            state.menu = [...DEFAULT_MENU];
+          }
+        } catch (e) {
+          state.menu = [...DEFAULT_MENU];
+        }
+
+        try {
+          const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
+          state.cart = savedCart ? JSON.parse(savedCart) : [];
+        } catch (e) {
+          state.cart = [];
+        }
+
+        try {
+          const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
+          state.orders = savedOrders ? JSON.parse(savedOrders) : [];
+        } catch (e) {
+          state.orders = [];
+        }
+
+        try {
+          const savedExpenses = localStorage.getItem(STORAGE_KEYS.EXPENSES);
+          state.expenses = savedExpenses ? JSON.parse(savedExpenses) : [];
+        } catch (e) {
+          state.expenses = [];
+        }
+
+        try {
+          const savedCounter = localStorage.getItem(STORAGE_KEYS.COUNTER);
+          if (savedCounter && !isNaN(Number(savedCounter))) {
+            state.orderCounter = Number(savedCounter);
+          }
+        } catch (e) {}
+
+        try {
+          const savedBot = localStorage.getItem(STORAGE_KEYS.BOT_CONFIG);
+          if (savedBot) {
+            const parsedBot = JSON.parse(savedBot);
+            state.botConfig = {
+              token: (parsedBot.token || DEFAULT_BOT_CONFIG.token).trim(),
+              chatId: (parsedBot.chatId || DEFAULT_BOT_CONFIG.chatId).trim(),
+            };
+          } else {
+            state.botConfig = { ...DEFAULT_BOT_CONFIG };
+          }
+        } catch (e) {
+          state.botConfig = { ...DEFAULT_BOT_CONFIG };
+        }
+
+        try {
+          const savedRtdb = localStorage.getItem(STORAGE_KEYS.RTDB_CONFIG);
+          if (savedRtdb) {
+            const parsedRtdb = JSON.parse(savedRtdb);
+            state.rtdbConfig = {
+              url: (parsedRtdb.url || DEFAULT_RTDB_CONFIG.url).trim(),
+              auth: (parsedRtdb.auth || '').trim(),
+            };
+          } else {
+            state.rtdbConfig = { ...DEFAULT_RTDB_CONFIG };
+          }
+        } catch (e) {
+          state.rtdbConfig = { ...DEFAULT_RTDB_CONFIG };
+        }
+
+        try {
+          const savedPin = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN);
+          if (savedPin) state.adminPin = savedPin;
+        } catch (e) {}
+      }
+
+      function broadcastSyncEvent(payload) {
+        if (!syncChannel) return;
+        try {
+          syncChannel.postMessage(payload);
+        } catch (e) {}
+      }
+
+      function saveMenu() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.MENU, JSON.stringify(state.menu));
+        } catch (e) {}
+        broadcastSyncEvent({ type: 'MENU_UPDATED', menu: state.menu, ts: Date.now() });
+        pushMenuToRealtimeDb();
+      }
+
+      function saveCart() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(state.cart));
+        } catch (e) {}
+      }
+
+      function saveOrders() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
+          localStorage.setItem(STORAGE_KEYS.COUNTER, String(state.orderCounter));
+        } catch (e) {}
+        broadcastSyncEvent({
+          type: 'ORDERS_UPDATED',
+          orders: state.orders,
+          orderCounter: state.orderCounter,
+          ts: Date.now(),
+        });
+        pushOrdersToRealtimeDb();
+      }
+
+      function saveExpenses() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(state.expenses));
+        } catch (e) {}
+        broadcastSyncEvent({
+          type: 'EXPENSES_UPDATED',
+          expenses: state.expenses,
+          ts: Date.now(),
+        });
+        pushExpensesToRealtimeDb();
+      }
+
+      function saveBotConfig() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.BOT_CONFIG, JSON.stringify(state.botConfig));
+        } catch (e) {}
+      }
+
+      function saveRtdbConfig() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.RTDB_CONFIG, JSON.stringify(state.rtdbConfig));
+        } catch (e) {}
+      }
+
+      function openConfirmDialog(title, message, onConfirm) {
+        pendingConfirmCallback = onConfirm;
+        document.getElementById('confirmDialogTitle').textContent = title;
+        document.getElementById('confirmDialogMessage').textContent = message;
+        const overlay = document.getElementById('confirmDialogOverlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
+
+      function closeConfirmDialog() {
+        pendingConfirmCallback = null;
+        const overlay = document.getElementById('confirmDialogOverlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+
+      // Firebase Realtime Database Helpers
+      function buildRtdbEndpoint(path) {
+        const base = (state.rtdbConfig.url || '').trim().replace(/\/+$/, '');
+        if (!base) return '';
+        const authParam = state.rtdbConfig.auth ? `?auth=${encodeURIComponent(state.rtdbConfig.auth)}` : '';
+        return `${base}/${path}.json${authParam}`;
+      }
+
+      function buildRtdbStreamEndpoint(path) {
+        const base = (state.rtdbConfig.url || '').trim().replace(/\/+$/, '');
+        if (!base) return '';
+        const authParam = state.rtdbConfig.auth ? `&auth=${encodeURIComponent(state.rtdbConfig.auth)}` : '';
+        return `${base}/${path}.json?accept=text/event-stream${authParam}`;
+      }
+
+      function updateRtdbStatusBadge(connected) {
+        state.rtdbConnected = Boolean(connected);
+        const badge = document.getElementById('rtdbStatusBadge');
+        const adminIndicator = document.getElementById('adminLiveSyncIndicator');
+        const clientText = document.getElementById('clientLiveStatusText');
+
+        if (!state.rtdbConfig.url) {
+          if (badge) {
+            badge.textContent = 'Lokal sinxronizatsiya';
+            badge.className = 'px-2.5 py-1 rounded-full bg-gray-200 text-gray-800 text-xs font-extrabold';
+          }
+          if (clientText) clientText.textContent = 'Menyu faol';
+          return;
+        }
+
+        if (connected) {
+          if (badge) {
+            badge.textContent = '🟢 Ulangan (Jonli RTDB)';
+            badge.className = 'px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold';
+          }
+          if (adminIndicator) {
+            adminIndicator.textContent = '🟢 Jonli sinxronizatsiya: Faol — Barcha klentlarda darhol yangilanadi';
+          }
+          if (clientText) clientText.textContent = 'Jonli menyu';
+        } else {
+          if (badge) {
+            badge.textContent = '🟡 Sinxronlanmoqda...';
+            badge.className = 'px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-extrabold';
+          }
+          if (clientText) clientText.textContent = 'Jonli menyu';
+        }
+      }
+
+      function syncCartWithMenu() {
+        const menuMap = new Map(state.menu.map((m) => [m.id, m]));
+        let changed = false;
+        state.cart = state.cart
+          .map((item) => {
+            const fresh = menuMap.get(item.id);
+            if (!fresh || !fresh.available) {
+              changed = true;
+              return null;
+            }
+            if (fresh.name !== item.name || fresh.price !== item.price || fresh.emoji !== item.emoji) {
+              changed = true;
+              return { ...item, name: fresh.name, price: fresh.price, emoji: fresh.emoji };
+            }
+            return item;
+          })
+          .filter(Boolean);
+        if (changed) saveCart();
+        return changed;
+      }
+
+      function applyIncomingMenu(remoteMenu, notifyClient = true) {
+        if (!Array.isArray(remoteMenu) || remoteMenu.length === 0) return false;
+        if (JSON.stringify(state.menu) === JSON.stringify(remoteMenu)) return false;
+
+        const prevCount = state.menu.length;
+        const hadCart = state.cart.length > 0;
+        const prevCartJson = JSON.stringify(state.cart);
+
+        state.menu = remoteMenu;
+        try {
+          localStorage.setItem(STORAGE_KEYS.MENU, JSON.stringify(state.menu));
+        } catch (e) {}
+
+        const validCats = new Set(['Barchasi', ...state.menu.map((m) => m.category)]);
+        if (!validCats.has(state.selectedCategory)) {
+          state.selectedCategory = 'Barchasi';
+        }
+
+        syncCartWithMenu();
+        renderCategoryTabs();
+        renderMenu();
+        renderCart();
+        renderAdminMenu();
+
+        if (notifyClient) {
+          const cartChanged = hadCart && prevCartJson !== JSON.stringify(state.cart);
+          if (remoteMenu.length > prevCount) {
+            showToast("Yangi taom menyuga qo'shildi!", 'info');
+          } else if (cartChanged) {
+            showToast('Menyu va savatchangizdagi narxlar yangilandi!', 'info');
+          } else {
+            showToast('Menyu va narxlar yangilandi!', 'info');
+          }
+        }
+        return true;
+      }
+
+      async function pushMenuToRealtimeDb() {
+        const endpoint = buildRtdbEndpoint('panda_burger/menu');
+        if (!endpoint) return false;
+        try {
+          const resp = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state.menu),
+          });
+          updateRtdbStatusBadge(resp.ok);
+          return resp.ok;
+        } catch (e) {
+          updateRtdbStatusBadge(false);
+          return false;
+        }
+      }
+
+      async function pushOrdersToRealtimeDb() {
+        const endpoint = buildRtdbEndpoint('panda_burger/ordersState');
+        if (!endpoint) return false;
+        try {
+          const compactOrders = state.orders.slice(0, 60).map((o) => ({
+            ...o,
+            receiptDataUrl: o.receiptDataUrl && o.receiptDataUrl.length < 180000 ? o.receiptDataUrl : null,
+          }));
+          const resp = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderCounter: state.orderCounter,
+              orders: compactOrders,
+            }),
+          });
+          return resp.ok;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      async function pushExpensesToRealtimeDb() {
+        const endpoint = buildRtdbEndpoint('panda_burger/expenses');
+        if (!endpoint) return false;
+        try {
+          const resp = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(state.expenses.slice(0, 200)),
+          });
+          return resp.ok;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      async function pullFromRealtimeDb(silent = true) {
+        const menuEndpoint = buildRtdbEndpoint('panda_burger/menu');
+        if (!menuEndpoint) {
+          updateRtdbStatusBadge(false);
+          return false;
+        }
+        try {
+          const resp = await fetch(menuEndpoint, { cache: 'no-store' });
+          if (!resp.ok) {
+            updateRtdbStatusBadge(false);
+            return false;
+          }
+          updateRtdbStatusBadge(true);
+          const remoteMenu = await resp.json();
+          if (Array.isArray(remoteMenu) && remoteMenu.length > 0) {
+            applyIncomingMenu(remoteMenu, !silent);
+          } else if (remoteMenu === null) {
+            await pushMenuToRealtimeDb();
+          }
+
+          // Pull orders if available
+          const ordEndpoint = buildRtdbEndpoint('panda_burger/ordersState');
+          if (ordEndpoint) {
+            const ordResp = await fetch(ordEndpoint, { cache: 'no-store' });
+            if (ordResp.ok) {
+              const ordData = await ordResp.json();
+              if (ordData && Array.isArray(ordData.orders)) {
+                if (typeof ordData.orderCounter === 'number' && ordData.orderCounter > state.orderCounter) {
+                  state.orderCounter = ordData.orderCounter;
+                }
+                if (JSON.stringify(ordData.orders) !== JSON.stringify(state.orders)) {
+                  state.orders = ordData.orders;
+                  try {
+                    localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(state.orders));
+                  } catch (e) {}
+                  renderRecentOrders();
+                  renderAdminOrders();
+                  renderFinanceDashboard();
+                }
+              }
+            }
+          }
+
+          // Pull expenses if available
+          const expEndpoint = buildRtdbEndpoint('panda_burger/expenses');
+          if (expEndpoint) {
+            const expResp = await fetch(expEndpoint, { cache: 'no-store' });
+            if (expResp.ok) {
+              const expData = await expResp.json();
+              if (Array.isArray(expData) && JSON.stringify(expData) !== JSON.stringify(state.expenses)) {
+                state.expenses = expData;
+                try {
+                  localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(state.expenses));
+                } catch (e) {}
+                renderFinanceDashboard();
+              }
+            }
+          }
+          return true;
+        } catch (e) {
+          updateRtdbStatusBadge(false);
+          return false;
+        }
+      }
+
+      let menuEventSource = null;
+      let syncPollInterval = null;
+
+      function startLiveRealtimeSync() {
+        if (menuEventSource) {
+          try {
+            menuEventSource.close();
+          } catch (e) {}
+          menuEventSource = null;
+        }
+        if (syncPollInterval) {
+          clearInterval(syncPollInterval);
+          syncPollInterval = null;
+        }
+
+        const streamUrl = buildRtdbStreamEndpoint('panda_burger/menu');
+        if (streamUrl && 'EventSource' in window) {
+          try {
+            menuEventSource = new EventSource(streamUrl);
+            menuEventSource.addEventListener('put', (event) => {
+              try {
+                const payload = JSON.parse(event.data);
+                updateRtdbStatusBadge(true);
+                if (payload && payload.path === '/' && Array.isArray(payload.data) && payload.data.length > 0) {
+                  applyIncomingMenu(payload.data, true);
+                } else if (payload && payload.path && payload.path !== '/') {
+                  pullFromRealtimeDb(false);
+                }
+              } catch (err) {}
+            });
+            menuEventSource.addEventListener('patch', () => {
+              pullFromRealtimeDb(false);
+            });
+            menuEventSource.onerror = () => {
+              updateRtdbStatusBadge(false);
+            };
+          } catch (e) {}
+        }
+
+        pullFromRealtimeDb(true);
+        syncPollInterval = setInterval(() => {
+          pullFromRealtimeDb(false);
+        }, 2000);
+      }
+
+      // BroadcastChannel & Cross-Tab Storage Listeners
+      if (syncChannel) {
+        syncChannel.onmessage = (event) => {
+          const data = event.data;
+          if (!data || !data.type) return;
+          if (data.type === 'MENU_UPDATED' && Array.isArray(data.menu)) {
+            applyIncomingMenu(data.menu, true);
+          } else if (data.type === 'ORDERS_UPDATED' && Array.isArray(data.orders)) {
+            state.orders = data.orders;
+            if (typeof data.orderCounter === 'number') state.orderCounter = data.orderCounter;
+            renderRecentOrders();
+            renderAdminOrders();
+            renderFinanceDashboard();
+          } else if (data.type === 'EXPENSES_UPDATED' && Array.isArray(data.expenses)) {
+            state.expenses = data.expenses;
+            renderFinanceDashboard();
+          }
+        };
+      }
+
+      window.addEventListener('storage', (e) => {
+        if (e.key === STORAGE_KEYS.MENU && e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue);
+            if (Array.isArray(parsed)) applyIncomingMenu(parsed, true);
+          } catch (err) {}
+        } else if (e.key === STORAGE_KEYS.ORDERS && e.newValue) {
+          try {
+            state.orders = JSON.parse(e.newValue) || [];
+            renderRecentOrders();
+            renderAdminOrders();
+            renderFinanceDashboard();
+          } catch (err) {}
+        } else if (e.key === STORAGE_KEYS.EXPENSES && e.newValue) {
+          try {
+            state.expenses = JSON.parse(e.newValue) || [];
+            renderFinanceDashboard();
+          } catch (err) {}
+        }
+      });
+
+      // Cart Helpers
+      function getCartItemQty(dishId) {
+        const found = state.cart.find((c) => c.id === dishId);
+        return found ? found.qty : 0;
+      }
+
+      function addToCart(dishId) {
+        const dish = state.menu.find((m) => m.id === dishId);
+        if (!dish || !dish.available) {
+          showToast('Bu taom vaqtincha mavjud emas', 'error');
+          return;
+        }
+        const existing = state.cart.find((c) => c.id === dishId);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          state.cart.push({
+            id: dish.id,
+            name: dish.name,
+            price: Number(dish.price) || 0,
+            emoji: dish.emoji || '🍔',
+            qty: 1,
+          });
+        }
+        saveCart();
+        renderMenu();
+        renderCart();
+        showToast(`${dish.name} savatga qo'shildi`);
+      }
+
+      function updateCartQty(dishId, delta) {
+        const idx = state.cart.findIndex((c) => c.id === dishId);
+        if (idx === -1) return;
+        state.cart[idx].qty += delta;
+        if (state.cart[idx].qty <= 0) {
+          state.cart.splice(idx, 1);
+        }
+        saveCart();
+        renderMenu();
+        renderCart();
+      }
+
+      function clearCart() {
+        state.cart = [];
+        saveCart();
+        renderMenu();
+        renderCart();
+      }
+
+      function getCartSubtotal() {
+        return state.cart.reduce((sum, item) => sum + (Number(item.price) || 0) * item.qty, 0);
+      }
+
+      function getCartTotalCount() {
+        return state.cart.reduce((sum, item) => sum + item.qty, 0);
+      }
+
+      // Render Categories & Menu
+      function renderCategoryTabs() {
+        const tabsEl = document.getElementById('categoryTabs');
+        if (!tabsEl) return;
+        const categories = ['Barchasi'];
+        state.menu.forEach((item) => {
+          if (item.category && !categories.includes(item.category)) {
+            categories.push(item.category);
+          }
+        });
+
+        tabsEl.innerHTML = categories
+          .map((cat) => {
+            const active = state.selectedCategory === cat;
+            const activeCls = active
+              ? 'bg-[#111315] text-[#FFD60A] shadow-md border-[#111315]'
+              : 'bg-white text-gray-700 hover:bg-gray-100 border-gray-200';
+            return `
+              <button
+                type="button"
+                data-category="${escapeHtml(cat)}"
+                class="category-pill shrink-0 px-4 py-2 rounded-full text-xs sm:text-sm font-extrabold border transition cursor-pointer ${activeCls}"
+              >
+                ${escapeHtml(cat)}
+              </button>
+            `;
+          })
+          .join('');
+      }
+
+      function renderMenu() {
+        const grid = document.getElementById('menuGrid');
+        const emptyState = document.getElementById('emptyMenuState');
+        if (!grid) return;
+
+        const q = state.searchQuery.trim().toLowerCase();
+        const filtered = state.menu.filter((item) => {
+          const matchesCat = state.selectedCategory === 'Barchasi' || item.category === state.selectedCategory;
+          const matchesSearch =
+            !q ||
+            item.name.toLowerCase().includes(q) ||
+            (item.description && item.description.toLowerCase().includes(q)) ||
+            (item.category && item.category.toLowerCase().includes(q));
+          return matchesCat && matchesSearch;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = '';
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        grid.innerHTML = filtered
+          .map((dish) => {
+            const qty = getCartItemQty(dish.id);
+            const isAvailable = dish.available !== false;
+            const visualMedia = dish.imageUrl
+              ? `<img src="${escapeHtml(dish.imageUrl)}" alt="${escapeHtml(dish.name)}" class="w-full h-36 object-cover rounded-2xl border border-gray-100" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" /><div class="hidden w-full h-36 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 items-center justify-center text-5xl">${escapeHtml(dish.emoji || '🍔')}</div>`
+              : `<div class="w-full h-36 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center text-5xl select-none">${escapeHtml(dish.emoji || '🍔')}</div>`;
+
+            let actionHtml = '';
+            if (!isAvailable) {
+              actionHtml = `
+                <button disabled type="button" class="w-full py-2.5 px-3 rounded-xl bg-gray-200 text-gray-500 font-bold text-xs cursor-not-allowed">
+                  Hozircha tugagan
+                </button>
+              `;
+            } else if (qty > 0) {
+              actionHtml = `
+                <div class="flex items-center justify-between gap-2 bg-[#111315] text-white rounded-xl p-1">
+                  <button
+                    type="button"
+                    data-qty-minus="${escapeHtml(dish.id)}"
+                    class="w-9 h-8 rounded-lg bg-white/15 hover:bg-white/25 font-black text-base flex items-center justify-center cursor-pointer"
+                  >
+                    −
+                  </button>
+                  <span class="font-black text-sm text-[#FFD60A]">${qty} ta</span>
+                  <button
+                    type="button"
+                    data-qty-plus="${escapeHtml(dish.id)}"
+                    class="w-9 h-8 rounded-lg bg-[#FFD60A] hover:bg-[#f2ca00] text-[#111315] font-black text-base flex items-center justify-center cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              `;
+            } else {
+              actionHtml = `
+                <button
+                  type="button"
+                  data-add-cart="${escapeHtml(dish.id)}"
+                  class="w-full py-2.5 px-4 rounded-xl bg-[#FFD60A] hover:bg-[#f5cc00] active:scale-[0.99] text-[#111315] font-extrabold text-xs sm:text-sm shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span>+ Savatga</span>
+                </button>
+              `;
+            }
+
+            return `
+              <article class="bg-white rounded-3xl p-3.5 border border-gray-200/80 shadow-sm hover:shadow-md transition flex flex-col justify-between ${!isAvailable ? 'opacity-70' : ''}">
+                <div class="space-y-3">
+                  <div class="relative">
+                    ${visualMedia}
+                    <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-[#111315]/85 backdrop-blur-xs text-white text-[10px] font-bold">
+                      ${escapeHtml(dish.category)}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 class="font-extrabold text-base text-[#111315] leading-snug">${escapeHtml(dish.name)}</h3>
+                    <p class="text-xs text-gray-500 line-clamp-2 mt-1 leading-relaxed">${escapeHtml(dish.description || '')}</p>
+                  </div>
+                </div>
+
+                <div class="pt-3 mt-3 border-t border-gray-100 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-base sm:text-lg text-[#111315]">${formatSom(dish.price)}</span>
+                    <span class="text-[11px] font-bold text-emerald-600">🚚 Bepul dastavka</span>
+                  </div>
+                  ${actionHtml}
+                </div>
+              </article>
+            `;
+          })
+          .join('');
+      }
+
+      // Render Cart & Summary
+      function renderCart() {
+        const count = getCartTotalCount();
+        const subtotal = getCartSubtotal();
+        const deliveryFee = 0;
+        const total = subtotal + deliveryFee;
+
+        document.getElementById('headerCartCount').textContent = count;
+        document.getElementById('floatingCartCount').textContent = count;
+        document.getElementById('floatingCartTotal').textContent = formatSom(total);
+
+        const floatingBar = document.getElementById('floatingCartBar');
+        if (count > 0) {
+          floatingBar.classList.remove('hidden');
+        } else {
+          floatingBar.classList.add('hidden');
+        }
+
+        const clearBtn = document.getElementById('clearCartBtn');
+        const container = document.getElementById('cartItemsContainer');
+
+        if (state.cart.length === 0) {
+          clearBtn.classList.add('hidden');
+          container.innerHTML = `
+            <div class="p-6 rounded-2xl bg-gray-50 border border-dashed border-gray-300 text-center space-y-2">
+              <div class="text-3xl">🛒</div>
+              <p class="text-sm font-bold text-gray-700">Savatingiz hozircha bo'sh</p>
+              <p class="text-xs text-gray-500">Menyudan yoqtirgan taomingizni tanlang</p>
+            </div>
+          `;
+        } else {
+          clearBtn.classList.remove('hidden');
+          container.innerHTML = state.cart
+            .map(
+              (item) => `
+              <div class="p-3 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <span class="text-2xl shrink-0">${escapeHtml(item.emoji || '🍔')}</span>
+                  <div class="min-w-0">
+                    <p class="font-extrabold text-sm text-[#111315] truncate">${escapeHtml(item.name)}</p>
+                    <p class="text-xs font-bold text-[#FF5A1F]">${formatSom(item.price * item.qty)}</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    data-cart-minus="${escapeHtml(item.id)}"
+                    class="w-7 h-7 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 font-black text-sm flex items-center justify-center cursor-pointer"
+                  >
+                    −
+                  </button>
+                  <span class="w-6 text-center font-black text-xs">${item.qty}</span>
+                  <button
+                    type="button"
+                    data-cart-plus="${escapeHtml(item.id)}"
+                    class="w-7 h-7 rounded-lg bg-[#111315] text-[#FFD60A] hover:bg-black font-black text-sm flex items-center justify-center cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            `
+            )
+            .join('');
+        }
+
+        document.getElementById('summarySubtotal').textContent = formatSom(subtotal);
+        document.getElementById('summaryDelivery').textContent = state.orderType === 'delivery' ? 'Bepul' : 'Bepul (Olib ketish)';
+        document.getElementById('summaryTotal').textContent = formatSom(total);
+      }
+
+      // Order Type & Payment Method UI Toggles
+      function setOrderType(type) {
+        state.orderType = type;
+        document.querySelectorAll('.order-type-btn').forEach((btn) => {
+          const isSelected = btn.dataset.orderType === type;
+          btn.className = isSelected
+            ? 'order-type-btn p-3 rounded-2xl border-2 border-[#111315] bg-[#FFD60A]/20 text-left transition cursor-pointer'
+            : 'order-type-btn p-3 rounded-2xl border-2 border-gray-200 bg-white text-left transition cursor-pointer';
+        });
+
+        const addrGroup = document.getElementById('deliveryAddressGroup');
+        const addrInput = document.getElementById('customerAddress');
+        if (type === 'delivery') {
+          addrGroup.classList.remove('hidden');
+          addrInput.required = true;
+        } else {
+          addrGroup.classList.add('hidden');
+          addrInput.required = false;
+        }
+        renderCart();
+      }
+
+      function setPaymentMethod(method) {
+        state.paymentMethod = method;
+        document.querySelectorAll('.payment-btn').forEach((btn) => {
+          const isSelected = btn.dataset.payment === method;
+          btn.className = isSelected
+            ? 'payment-btn p-3 rounded-2xl border-2 border-[#111315] bg-sky-50 text-left transition cursor-pointer'
+            : 'payment-btn p-3 rounded-2xl border-2 border-gray-200 bg-white text-left transition cursor-pointer';
+        });
+
+        const clickBox = document.getElementById('clickPaymentBox');
+        if (method === 'click') {
+          clickBox.classList.remove('hidden');
+        } else {
+          clickBox.classList.add('hidden');
+        }
+      }
+
+      // Barcode Canvas Generator (Scannable Code 128 style bars)
+      function generateBarcodeDataUrl(codeText) {
+        const canvas = document.getElementById('orderBarcodeCanvas');
+        if (!canvas) return '';
+        const ctx = canvas.getContext('2d');
+        const width = 420;
+        const height = 115;
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, width, height);
+
+        const cleanCode = String(codeText || 'PB-5324');
+        let seed = 2166136261;
+        for (let i = 0; i < cleanCode.length; i++) {
+          seed ^= cleanCode.charCodeAt(i);
+          seed = Math.imul(seed, 16777619);
+        }
+
+        const startX = 24;
+        const usableWidth = width - 48;
+        const barTop = 14;
+        const barHeight = 76;
+
+        let x = startX;
+        let bitIdx = 0;
+        ctx.fillStyle = '#0B0D0E';
+
+        while (x < startX + usableWidth - 4) {
+          seed ^= seed << 13;
+          seed ^= seed >>> 17;
+          seed ^= seed << 5;
+          const randVal = Math.abs(seed);
+          const barW = (randVal % 4) + 1;
+          const isBlack = bitIdx < 3 || x > startX + usableWidth - 14 || randVal % 2 === 0;
+
+          if (isBlack && x + barW <= startX + usableWidth) {
+            ctx.fillRect(x, barTop, barW, barHeight);
+          }
+          x += barW + 1;
+          bitIdx++;
+        }
+
+        ctx.fillStyle = '#111315';
+        ctx.font = 'bold 13px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(cleanCode, width / 2, height - 8);
+
+        return canvas.toDataURL('image/png');
+      }
+
+      function dataUrlToBlob(dataUrl) {
+        const parts = dataUrl.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'image/png';
+        const byteString = atob(parts[1]);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mime });
+      }
+
+      // Format Receipt Text Matching User's Style
+      function formatOrderReceiptText(order) {
+        const lines = [];
+        lines.push(`🐼 YANGI BUYURTMA: #${order.orderCode}`);
+        lines.push(`🕒 Vaqt: ${order.createdAt}`);
+        lines.push('');
+        lines.push(`👤 Mijoz: ${order.customerName}`);
+        lines.push(`📞 Tel: ${order.customerPhone}`);
+
+        if (order.orderType === 'delivery') {
+          lines.push(`🚚 Turi: Yetkazib berish (BEPUL)`);
+          lines.push(`📍 Manzil: ${order.customerAddress}`);
+        } else {
+          lines.push(`🏃 Turi: Olib ketish (BEPUL)`);
+        }
+
+        if (order.note) {
+          lines.push(`💬 Izoh: ${order.note}`);
+        }
+
+        lines.push('');
+        lines.push(`🍔 BUYURTMA TARKIBI:`);
+        order.items.forEach((item, idx) => {
+          lines.push(`${idx + 1}. ${item.name} x${item.qty} = ${formatSom(item.price * item.qty)}`);
+        });
+
+        lines.push('');
+        lines.push(`💵 Taomlar: ${formatSom(order.subtotal)}`);
+        lines.push(`🛵 Yetkazish: Bepul`);
+        lines.push(`💰 JAMI: ${formatSom(order.total)}`);
+
+        if (order.paymentMethod === 'click') {
+          const receiptStatus = order.receiptDataUrl
+            ? 'Chek ilova qilindi — Admin tekshiradi'
+            : 'Chek yuborilmadi — Admin tekshiradi';
+          lines.push(`💳 To'lov: Click (9860 0201 3042 9374 — Jobirxon Egamberdiev) (${receiptStatus})`);
+        } else {
+          lines.push(`💵 To'lov: Naxt pul`);
+        }
+
+        return lines.join('\n');
+      }
+
+      // Send Order (Barcode Photo + Receipt Caption + Optional Click Receipt Photo) to Telegram Bot
+      async function sendOrderToTelegram(order, receiptText, barcodeDataUrl) {
+        const token = (state.botConfig.token || '').trim();
+        const chatId = (state.botConfig.chatId || '').trim();
+
+        if (!token || !chatId) {
+          return { ok: false, reason: 'missing_config' };
+        }
+
+        try {
+          let sentMain = false;
+
+          if (barcodeDataUrl) {
+            const barcodeBlob = dataUrlToBlob(barcodeDataUrl);
+            const formData = new FormData();
+            formData.append('chat_id', chatId);
+            formData.append('photo', barcodeBlob, `${order.orderCode}-barcode.png`);
+            formData.append('caption', receiptText.slice(0, 1024));
+
+            const photoResp = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+              method: 'POST',
+              body: formData,
+            });
+            const photoJson = await photoResp.json();
+            sentMain = Boolean(photoResp.ok && photoJson.ok);
+          }
+
+          if (!sentMain) {
+            const msgResp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: receiptText,
+              }),
+            });
+            const msgJson = await msgResp.json();
+            sentMain = Boolean(msgResp.ok && msgJson.ok);
+          }
+
+          if (sentMain && receiptText.length > 1024) {
+            await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `📋 Buyurtma #${order.orderCode} to'liq cheki:\n\n${receiptText}`,
+              }),
+            });
+          }
+
+          if (sentMain && order.paymentMethod === 'click' && order.receiptDataUrl) {
+            const receiptBlob = dataUrlToBlob(order.receiptDataUrl);
+            const recForm = new FormData();
+            recForm.append('chat_id', chatId);
+            recForm.append('photo', receiptBlob, `${order.orderCode}-click-chek.jpg`);
+            recForm.append(
+              'caption',
+              `🧾 CLICK TO'LOV CHEKI — #${order.orderCode}\n👤 Mijoz: ${order.customerName} (${order.customerPhone})\n💳 Karta: 9860 0201 3042 9374 (Jobirxon Egamberdiev)\n💰 Summa: ${formatSom(order.total)}\n✅ Admin tekshiradi`
+            );
+            await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+              method: 'POST',
+              body: recForm,
+            });
+          }
+
+          return { ok: sentMain, reason: sentMain ? 'sent' : 'api_error' };
+        } catch (err) {
+          return { ok: false, reason: 'network_error' };
+        }
+      }
+
+      // Render Recent Customer Orders
+      function renderRecentOrders() {
+        const section = document.getElementById('recentOrdersSection');
+        const list = document.getElementById('recentOrdersList');
+        if (!section || !list) return;
+
+        if (state.orders.length === 0) {
+          section.classList.add('hidden');
+          return;
+        }
+
+        section.classList.remove('hidden');
+        list.innerHTML = state.orders
+          .slice(0, 4)
+          .map(
+            (ord) => `
+            <div class="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-xs flex flex-col justify-between gap-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <span class="font-black text-sm text-[#111315]">#${escapeHtml(ord.orderCode)}</span>
+                  <span class="text-xs text-gray-400 ml-2">${escapeHtml(ord.createdAt)}</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                  ord.paymentMethod === 'click' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'
+                }">
+                  ${ord.paymentMethod === 'click' ? '💳 Click' : '💵 Naxt'}
+                </span>
+              </div>
+              <p class="text-xs text-gray-600 line-clamp-2">
+                ${ord.items.map((i) => `${escapeHtml(i.name)} ×${i.qty}`).join(', ')}
+              </p>
+              <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                <span class="font-black text-sm text-[#111315]">Jami: ${formatSom(ord.total)}</span>
+                <button
+                  type="button"
+                  data-view-receipt="${escapeHtml(ord.orderCode)}"
+                  class="text-xs font-extrabold text-[#FF5A1F] hover:underline cursor-pointer"
+                >
+                  Chekni ko'rish →
+                </button>
+              </div>
+            </div>
+          `
+          )
+          .join('');
+      }
+
+      // Admin Panel Helpers
+      function resetDishForm() {
+        document.getElementById('editDishId').value = '';
+        document.getElementById('dishFormTitle').textContent = "➕ Yangi menyu / taom qo'shish";
+        document.getElementById('saveDishBtn').textContent = "➕ Menyuga Qo'shish va Klentlarga Ko'rsatish";
+        document.getElementById('cancelEditDishBtn').classList.add('hidden');
+        document.getElementById('dishNameInput').value = '';
+        document.getElementById('dishPriceInput').value = '';
+        document.getElementById('dishCategoryInput').value = 'Burgerlar';
+        document.getElementById('customCategoryInput').value = '';
+        document.getElementById('customCategoryInput').classList.add('hidden');
+        document.getElementById('dishEmojiInput').value = '🍔';
+        document.getElementById('dishImageUrlInput').value = '';
+        document.getElementById('dishPhotoFileInput').value = '';
+        document.getElementById('dishImagePreviewBox').classList.add('hidden');
+        document.getElementById('dishImagePreviewImg').src = '';
+        document.getElementById('clearDishImageBtn').classList.add('hidden');
+        document.getElementById('dishDescInput').value = '';
+        document.getElementById('dishAvailableInput').checked = true;
+      }
+
+      function setDishImagePreview(url) {
+        const previewBox = document.getElementById('dishImagePreviewBox');
+        const previewImg = document.getElementById('dishImagePreviewImg');
+        const clearBtn = document.getElementById('clearDishImageBtn');
+        if (url && url.trim()) {
+          previewImg.src = url.trim();
+          previewBox.classList.remove('hidden');
+          clearBtn.classList.remove('hidden');
+        } else {
+          previewImg.src = '';
+          previewBox.classList.add('hidden');
+          clearBtn.classList.add('hidden');
+        }
+      }
+
+      function startEditDish(id) {
+        const item = state.menu.find((m) => m.id === id);
+        if (!item) return;
+
+        const modalCatSelect = document.getElementById('modalDishCategoryInput');
+        const categories = [
+          'Burgerlar',
+          'Hot-Doglar',
+          'Lavash va Doner',
+          'Pitsa',
+          'Rollar va Sushi',
+          'Kombo va Ichimliklar',
+          ...state.menu.map((m) => m.category),
+        ];
+        const uniqueCats = [...new Set(categories.filter(Boolean))];
+        modalCatSelect.innerHTML = uniqueCats
+          .map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`)
+          .join('');
+
+        document.getElementById('modalEditDishId').value = item.id;
+        document.getElementById('modalDishNameInput').value = item.name;
+        document.getElementById('modalDishPriceInput').value = item.price;
+        modalCatSelect.value = item.category;
+        document.getElementById('modalDishEmojiInput').value = item.emoji || '🍔';
+        document.getElementById('modalDishImageUrlInput').value = item.imageUrl || '';
+        document.getElementById('modalDishPhotoFileInput').value = '';
+        document.getElementById('modalDishDescInput').value = item.description || '';
+        document.getElementById('modalDishAvailableInput').checked = Boolean(item.available);
+
+        const overlay = document.getElementById('editDishModalOverlay');
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+      }
+
+      function closeEditDishModal() {
+        const overlay = document.getElementById('editDishModalOverlay');
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+
+      function renderAdminMenu() {
+        const list = document.getElementById('adminMenuList');
+        const countEl = document.getElementById('adminMenuCount');
+        if (!list) return;
+        countEl.textContent = state.menu.length;
+
+        const q = (state.adminMenuSearch || '').trim().toLowerCase();
+        const filtered = state.menu.filter(
+          (item) =>
+            !q ||
+            item.name.toLowerCase().includes(q) ||
+            (item.category && item.category.toLowerCase().includes(q))
+        );
+
+        if (filtered.length === 0) {
+          list.innerHTML = `
+            <div class="p-6 rounded-2xl bg-gray-50 border border-dashed border-gray-300 text-center text-xs font-bold text-gray-500">
+              Taom topilmadi
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = filtered
+          .map(
+            (item) => `
+            <div class="p-3.5 rounded-2xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                ${
+                  item.imageUrl
+                    ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.name)}" class="w-12 h-12 rounded-xl object-cover border border-gray-300 shrink-0" />`
+                    : `<span class="w-12 h-12 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-2xl shrink-0">${escapeHtml(item.emoji || '🍔')}</span>`
+                }
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-extrabold text-sm text-[#111315] truncate">${escapeHtml(item.name)}</span>
+                    <span class="px-2 py-0.5 rounded-full bg-gray-200 text-gray-700 text-[10px] font-bold">${escapeHtml(item.category)}</span>
+                    ${
+                      item.available
+                        ? '<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">Sotuvda</span>'
+                        : '<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">Tugagan</span>'
+                    }
+                  </div>
+                  <p class="text-xs text-gray-500 truncate mt-0.5">${escapeHtml(item.description || '')}</p>
+                  <p class="text-sm font-black text-[#FF5A1F] mt-0.5">${formatSom(item.price)}</p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  data-admin-toggle="${escapeHtml(item.id)}"
+                  class="px-3 py-2 rounded-xl bg-white hover:bg-gray-100 border border-gray-300 text-xs font-bold cursor-pointer"
+                >
+                  ${item.available ? '⏸ Tugadi' : '▶️ Yoqish'}
+                </button>
+                <button
+                  type="button"
+                  data-admin-edit="${escapeHtml(item.id)}"
+                  class="px-3.5 py-2 rounded-xl bg-[#FFD60A] hover:bg-[#f2ca00] text-[#111315] text-xs font-extrabold shadow-xs cursor-pointer"
+                >
+                  ✏️ Tahrirlash
+                </button>
+                <button
+                  type="button"
+                  data-admin-delete="${escapeHtml(item.id)}"
+                  class="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold shadow-xs cursor-pointer"
+                >
+                  🗑️ O'chirish
+                </button>
+              </div>
+            </div>
+          `
+          )
+          .join('');
+      }
+
+      // Finance, Sales, Click & Expenses Dashboard Rendering
+      function isWithinPeriod(timestampMs, period) {
+        if (period === 'all') return true;
+        const ts = Number(timestampMs) || 0;
+        if (!ts) return true;
+        const now = new Date();
+        if (period === 'today') {
+          const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+          return ts >= startOfDay;
+        }
+        if (period === 'week') {
+          return ts >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+        }
+        if (period === 'month') {
+          return ts >= Date.now() - 30 * 24 * 60 * 60 * 1000;
+        }
+        return true;
+      }
+
+      function renderFinanceDashboard() {
+        const totalSalesEl = document.getElementById('finTotalSales');
+        if (!totalSalesEl) return;
+
+        document.querySelectorAll('.fin-period-btn').forEach((btn) => {
+          const active = btn.dataset.finPeriod === state.financePeriod;
+          btn.className = active
+            ? 'fin-period-btn px-3.5 py-2 rounded-xl text-xs font-extrabold bg-[#111315] text-[#FFD60A] cursor-pointer'
+            : 'fin-period-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-gray-700 hover:bg-gray-200 cursor-pointer';
+        });
+
+        const activeOrders = state.orders.filter(
+          (o) => o.status !== 'Bekor qilindi' && isWithinPeriod(o.timestamp || Date.now(), state.financePeriod)
+        );
+        const periodExpenses = state.expenses.filter((ex) =>
+          isWithinPeriod(ex.timestamp || Date.now(), state.financePeriod)
+        );
+
+        let totalSales = 0;
+        let clickSales = 0;
+        let clickCount = 0;
+        let cashSales = 0;
+        let cashCount = 0;
+
+        activeOrders.forEach((o) => {
+          const amt = Number(o.total) || 0;
+          totalSales += amt;
+          if (o.paymentMethod === 'click') {
+            clickSales += amt;
+            clickCount += 1;
+          } else {
+            cashSales += amt;
+            cashCount += 1;
+          }
+        });
+
+        let totalExpenses = 0;
+        let clickExpenses = 0;
+        let cashExpenses = 0;
+
+        periodExpenses.forEach((ex) => {
+          const amt = Number(ex.amount) || 0;
+          totalExpenses += amt;
+          if (ex.source === 'click') {
+            clickExpenses += amt;
+          } else {
+            cashExpenses += amt;
+          }
+        });
+
+        const netProfit = totalSales - totalExpenses;
+        const clickBalance = clickSales - clickExpenses;
+        const cashBalance = cashSales - cashExpenses;
+
+        totalSalesEl.textContent = formatSom(totalSales);
+        document.getElementById('finTotalOrdersCount').textContent = `${activeOrders.length} ta buyurtma`;
+
+        document.getElementById('finClickSales').textContent = formatSom(clickSales);
+        document.getElementById('finClickCount').textContent = `${clickCount} ta Click to'lov`;
+
+        document.getElementById('finCashSales').textContent = formatSom(cashSales);
+        document.getElementById('finCashCount').textContent = `${cashCount} ta Naxt to'lov`;
+
+        document.getElementById('finTotalExpenses').textContent = formatSom(totalExpenses);
+        document.getElementById('finExpensesBreakdown').textContent = `Click: ${formatSom(clickExpenses)} • Naxt: ${formatSom(cashExpenses)}`;
+
+        const netEl = document.getElementById('finNetProfit');
+        netEl.textContent = (netProfit < 0 ? '−' : '') + formatSom(Math.abs(netProfit));
+        netEl.className =
+          netProfit >= 0
+            ? 'text-lg sm:text-xl font-black text-emerald-700 mt-1'
+            : 'text-lg sm:text-xl font-black text-red-600 mt-1';
+        document.getElementById('finNetBalances').textContent = `Click qoldiq: ${formatSom(clickBalance)} • Naxt: ${formatSom(cashBalance)}`;
+
+        document.getElementById('expensesListCount').textContent = periodExpenses.length;
+        const expContainer = document.getElementById('expensesListContainer');
+        if (periodExpenses.length === 0) {
+          expContainer.innerHTML = `
+            <div class="p-5 rounded-xl bg-gray-50 border border-dashed border-gray-300 text-center text-xs text-gray-500 font-semibold">
+              Tanlangan davrda rashodlar kiritilmagan
+            </div>
+          `;
+        } else {
+          expContainer.innerHTML = periodExpenses
+            .map(
+              (ex) => `
+              <div class="p-3 rounded-xl bg-red-50/50 border border-red-100 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-xs sm:text-sm text-[#111315] truncate">${escapeHtml(ex.title)}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      ex.source === 'click' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'
+                    }">
+                      ${ex.source === 'click' ? '💳 Click' : '💵 Naxt'}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 mt-0.5">${escapeHtml(ex.createdAt)}${ex.note ? ' • ' + escapeHtml(ex.note) : ''}</p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="font-black text-xs sm:text-sm text-red-600">−${formatSom(ex.amount)}</span>
+                  <button
+                    type="button"
+                    data-delete-expense="${escapeHtml(ex.id)}"
+                    class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-red-100 border border-red-200 text-red-600 text-xs font-bold cursor-pointer"
+                    title="Rashodni o'chirish"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            `
+            )
+            .join('');
+        }
+
+        document.getElementById('financeSalesCount').textContent = activeOrders.length;
+        const salesContainer = document.getElementById('financeSalesListContainer');
+        if (activeOrders.length === 0) {
+          salesContainer.innerHTML = `
+            <div class="p-5 rounded-xl bg-gray-50 border border-dashed border-gray-300 text-center text-xs text-gray-500 font-semibold">
+              Tanlangan davrda savdo mavjud emas
+            </div>
+          `;
+        } else {
+          salesContainer.innerHTML = activeOrders
+            .map(
+              (ord) => `
+              <div class="p-3 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-black text-xs text-[#111315]">#${escapeHtml(ord.orderCode)}</span>
+                    <span class="text-xs font-bold text-gray-700 truncate">${escapeHtml(ord.customerName)}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      ord.paymentMethod === 'click' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'
+                    }">
+                      ${ord.paymentMethod === 'click' ? '💳 Click' : '💵 Naxt'}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-gray-500 mt-0.5">${escapeHtml(ord.createdAt)} • ${escapeHtml(ord.status || 'Yangi')}</p>
+                </div>
+                <span class="font-black text-xs sm:text-sm text-emerald-700 shrink-0">+${formatSom(ord.total)}</span>
+              </div>
+            `
+            )
+            .join('');
+        }
+      }
+
+      function renderAdminOrders() {
+        const badge = document.getElementById('adminOrdersBadge');
+        const list = document.getElementById('adminOrdersList');
+        if (!badge || !list) return;
+        badge.textContent = state.orders.length;
+
+        if (state.orders.length === 0) {
+          list.innerHTML = `
+            <div class="p-8 rounded-2xl bg-gray-50 border border-dashed border-gray-300 text-center">
+              <p class="text-3xl mb-1">📭</p>
+              <p class="text-sm font-bold text-gray-700">Hozircha buyurtmalar yo'q</p>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = state.orders
+          .map(
+            (ord) => `
+            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 space-y-3 ${ord.status === 'Bekor qilindi' ? 'opacity-65' : ''}">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="font-black text-base text-[#111315]">#${escapeHtml(ord.orderCode)}</span>
+                  <span class="text-xs text-gray-500 ml-2">${escapeHtml(ord.createdAt)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <select
+                    data-order-status="${escapeHtml(ord.orderCode)}"
+                    class="px-3 py-1.5 rounded-xl bg-white border border-gray-300 text-xs font-extrabold cursor-pointer"
+                  >
+                    <option value="Yangi" ${ord.status === 'Yangi' ? 'selected' : ''}>🟡 Kutilmoqda (Yangi)</option>
+                    <option value="Tasdiqlandi" ${ord.status === 'Tasdiqlandi' ? 'selected' : ''}>✅ Tasdiqlandi</option>
+                    <option value="Yetkazildi" ${ord.status === 'Yetkazildi' ? 'selected' : ''}>🚚 Yetkazildi</option>
+                    <option value="Bekor qilindi" ${ord.status === 'Bekor qilindi' ? 'selected' : ''}>❌ Bekor qilindi</option>
+                  </select>
+                  <button
+                    type="button"
+                    data-delete-order="${escapeHtml(ord.orderCode)}"
+                    class="px-2.5 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold cursor-pointer"
+                    title="Buyurtmani o'chirish"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-700">
+                <p><b>👤 Mijoz:</b> ${escapeHtml(ord.customerName)} (${escapeHtml(ord.customerPhone)})</p>
+                <p><b>🚚 Turi:</b> ${ord.orderType === 'delivery' ? `Yetkazish (BEPUL) — ${escapeHtml(ord.customerAddress)}` : 'Olib ketish'}</p>
+                <p><b>💳 To'lov:</b> ${ord.paymentMethod === 'click' ? 'Click (Chek ilova qilingan)' : 'Naxt pul'}</p>
+                <p><b>💰 Jami:</b> <span class="font-black text-[#111315]">${formatSom(ord.total)}</span></p>
+              </div>
+
+              <div class="text-xs bg-white p-2.5 rounded-xl border border-gray-200">
+                ${ord.items.map((i) => `${escapeHtml(i.name)} ×${i.qty} = ${formatSom(i.price * i.qty)}`).join(' • ')}
+              </div>
+
+              ${
+                ord.receiptDataUrl
+                  ? `<div class="flex items-center gap-3 pt-1">
+                      <img src="${ord.receiptDataUrl}" alt="Click chek" class="w-16 h-16 rounded-xl object-cover border border-gray-300" />
+                      <span class="text-xs font-bold text-sky-700">🧾 Mijoz yuklagan Click to'lov cheki</span>
+                    </div>`
+                  : ''
+              }
+            </div>
+          `
+          )
+          .join('');
+      }
+
+      function populateAdminSettingsInputs() {
+        document.getElementById('botTokenInput').value = state.botConfig.token || '';
+        document.getElementById('botChatIdInput').value = state.botConfig.chatId || '';
+        document.getElementById('newAdminPinInput').value = state.adminPin || '1234';
+        document.getElementById('rtdbUrlInput').value = state.rtdbConfig.url || '';
+        document.getElementById('rtdbAuthInput').value = state.rtdbConfig.auth || '';
+      }
+
+      // Bind All Event Listeners
+      function bindEvents() {
+        document.getElementById('categoryTabs').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-category]');
+          if (!btn) return;
+          state.selectedCategory = btn.dataset.category;
+          renderCategoryTabs();
+          renderMenu();
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+          state.searchQuery = e.target.value;
+          renderMenu();
+        });
+
+        document.getElementById('clientRefreshMenuBtn').addEventListener('click', async () => {
+          const ok = await pullFromRealtimeDb(true);
+          if (!ok) {
+            renderCategoryTabs();
+            renderMenu();
+            showToast('Menyu yangilandi');
+          }
+        });
+
+        document.getElementById('menuGrid').addEventListener('click', (e) => {
+          const addBtn = e.target.closest('[data-add-cart]');
+          if (addBtn) {
+            addToCart(addBtn.dataset.addCart);
+            return;
+          }
+          const plusBtn = e.target.closest('[data-qty-plus]');
+          if (plusBtn) {
+            updateCartQty(plusBtn.dataset.qtyPlus, 1);
+            return;
+          }
+          const minusBtn = e.target.closest('[data-qty-minus]');
+          if (minusBtn) {
+            updateCartQty(minusBtn.dataset.qtyMinus, -1);
+          }
+        });
+
+        const openCartDrawer = () => {
+          const overlay = document.getElementById('cartDrawerOverlay');
+          overlay.classList.remove('hidden');
+          overlay.classList.add('flex');
+          renderCart();
+        };
+
+        const closeCartDrawer = () => {
+          const overlay = document.getElementById('cartDrawerOverlay');
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        };
+
+        document.getElementById('openCartHeaderBtn').addEventListener('click', openCartDrawer);
+        document.getElementById('openCartFloatingBtn').addEventListener('click', openCartDrawer);
+        document.getElementById('closeCartDrawerBtn').addEventListener('click', closeCartDrawer);
+        document.getElementById('cartDrawerOverlay').addEventListener('click', (e) => {
+          if (e.target.id === 'cartDrawerOverlay') closeCartDrawer();
+        });
+
+        document.getElementById('cartItemsContainer').addEventListener('click', (e) => {
+          const plusBtn = e.target.closest('[data-cart-plus]');
+          if (plusBtn) {
+            updateCartQty(plusBtn.dataset.cartPlus, 1);
+            return;
+          }
+          const minusBtn = e.target.closest('[data-cart-minus]');
+          if (minusBtn) {
+            updateCartQty(minusBtn.dataset.cartMinus, -1);
+          }
+        });
+
+        document.getElementById('clearCartBtn').addEventListener('click', clearCart);
+
+        document.querySelectorAll('.order-type-btn').forEach((btn) => {
+          btn.addEventListener('click', () => setOrderType(btn.dataset.orderType));
+        });
+
+        document.querySelectorAll('.payment-btn').forEach((btn) => {
+          btn.addEventListener('click', () => setPaymentMethod(btn.dataset.payment));
+        });
+
+        document.getElementById('copyCardBtn').addEventListener('click', () => {
+          copyToClipboard('9860020130429374', 'Karta raqami nusxalandi: 9860 0201 3042 9374');
+        });
+
+        document.getElementById('detectLocationBtn').addEventListener('click', () => {
+          if (!navigator.geolocation) {
+            showToast("Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi", 'error');
+            return;
+          }
+          showToast('Joylashuv aniqlanmoqda...', 'info');
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const lat = pos.coords.latitude.toFixed(5);
+              const lng = pos.coords.longitude.toFixed(5);
+              document.getElementById('customerAddress').value = `GPS: ${lat}, ${lng} (https://maps.google.com/?q=${lat},${lng})`;
+              showToast('Joylashuv manzilga kiritildi!');
+            },
+            () => {
+              showToast("Joylashuvni aniqlab bo'lmadi, manzilni qo'lda yozing", 'error');
+            }
+          );
+        });
+
+        const receiptInput = document.getElementById('receiptFileInput');
+        receiptInput.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          if (!file.type.startsWith('image/')) {
+            showToast('Faqat rasm faylini tanlang!', 'error');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxDim = 900;
+              let w = img.width;
+              let h = img.height;
+              if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                  h = Math.round((h * maxDim) / w);
+                  w = maxDim;
+                } else {
+                  w = Math.round((w * maxDim) / h);
+                  h = maxDim;
+                }
+              }
+              canvas.width = w;
+              canvas.height = h;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, w, h);
+              state.receiptDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+              state.receiptFileName = file.name;
+
+              document.getElementById('receiptPreviewImg').src = state.receiptDataUrl;
+              document.getElementById('receiptFileName').textContent = file.name;
+              document.getElementById('receiptPreviewWrapper').classList.remove('hidden');
+              document.getElementById('receiptUploadLabel').textContent = 'Chek ilova qilindi — Admin tekshiradi ✓';
+              showToast("To'lov cheki ilova qilindi");
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('removeReceiptBtn').addEventListener('click', () => {
+          state.receiptDataUrl = null;
+          state.receiptFileName = '';
+          document.getElementById('receiptFileInput').value = '';
+          document.getElementById('receiptPreviewWrapper').classList.add('hidden');
+          document.getElementById('receiptUploadLabel').textContent = 'Chek skrinshotini tanlash uchun bosing';
+        });
+
+        // Checkout Form Submit
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          if (state.cart.length === 0) {
+            showToast('Avval savatga taom qo\'shing!', 'error');
+            return;
+          }
+
+          const customerName = document.getElementById('customerName').value.trim();
+          const customerPhone = document.getElementById('customerPhone').value.trim();
+          const customerAddress = document.getElementById('customerAddress').value.trim();
+          const note = document.getElementById('customerNote').value.trim();
+
+          if (!customerName || !customerPhone) {
+            showToast('Ismingiz va telefon raqamingizni kiriting!', 'error');
+            return;
+          }
+
+          if (state.orderType === 'delivery' && !customerAddress) {
+            showToast('Yetkazib berish uchun manzilni kiriting!', 'error');
+            return;
+          }
+
+          if (state.paymentMethod === 'click' && !state.receiptDataUrl) {
+            showToast("Click orqali to'lov cheki rasmini yuklang!", 'error');
+            return;
+          }
+
+          const submitBtn = document.getElementById('submitOrderBtn');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<span>⏳</span><span>Yuborilmoqda...</span>';
+
+          try {
+            state.orderCounter += 1;
+            const orderCode = `PB-${state.orderCounter}`;
+            const subtotal = getCartSubtotal();
+            const total = subtotal;
+
+            const order = {
+              orderCode,
+              timestamp: Date.now(),
+              createdAt: getFormattedDateTime(new Date()),
+              customerName,
+              customerPhone,
+              orderType: state.orderType,
+              customerAddress: state.orderType === 'delivery' ? customerAddress : 'Olib ketish',
+              note,
+              items: state.cart.map((c) => ({ ...c })),
+              subtotal,
+              delivery: 0,
+              total,
+              paymentMethod: state.paymentMethod,
+              receiptDataUrl: state.paymentMethod === 'click' ? state.receiptDataUrl : null,
+              status: 'Yangi',
+            };
+
+            const barcodeDataUrl = generateBarcodeDataUrl(orderCode);
+            const receiptText = formatOrderReceiptText(order);
+
+            const tgResult = await sendOrderToTelegram(order, receiptText, barcodeDataUrl);
+
+            state.orders.unshift(order);
+            saveOrders();
+
+            state.cart = [];
+            state.receiptDataUrl = null;
+            state.receiptFileName = '';
+            saveCart();
+            document.getElementById('receiptFileInput').value = '';
+            document.getElementById('receiptPreviewWrapper').classList.add('hidden');
+            document.getElementById('receiptUploadLabel').textContent = 'Chek skrinshotini tanlash uchun bosing';
+            document.getElementById('customerNote').value = '';
+
+            renderMenu();
+            renderCart();
+            renderRecentOrders();
+            renderAdminOrders();
+            renderFinanceDashboard();
+
+            state.lastGeneratedText = receiptText;
+            document.getElementById('formattedReceiptPreview').textContent = receiptText;
+
+            const statusTextEl = document.getElementById('telegramSendStatusText');
+            const fallbackNotice = document.getElementById('telegramFallbackNotice');
+            if (tgResult.ok) {
+              statusTextEl.textContent = 'Telegram botga yuborildi ✓';
+              statusTextEl.className = 'text-xs text-emerald-400 font-semibold';
+              fallbackNotice.classList.add('hidden');
+            } else {
+              statusTextEl.textContent = 'Chek tayyorlandi (Telegram sozlamasini tekshiring)';
+              statusTextEl.className = 'text-xs text-amber-300 font-semibold';
+              fallbackNotice.classList.remove('hidden');
+            }
+
+            closeCartDrawer();
+            const recOverlay = document.getElementById('receiptModalOverlay');
+            recOverlay.classList.remove('hidden');
+            recOverlay.classList.add('flex');
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>🚀</span><span>Buyurtmani Yuborish</span>';
+          }
+        });
+
+        document.getElementById('recentOrdersList').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-view-receipt]');
+          if (!btn) return;
+          const ord = state.orders.find((o) => o.orderCode === btn.dataset.viewReceipt);
+          if (!ord) return;
+          generateBarcodeDataUrl(ord.orderCode);
+          const txt = formatOrderReceiptText(ord);
+          state.lastGeneratedText = txt;
+          document.getElementById('formattedReceiptPreview').textContent = txt;
+          document.getElementById('telegramSendStatusText').textContent = `Buyurtma #${ord.orderCode} cheki`;
+          document.getElementById('telegramFallbackNotice').classList.add('hidden');
+          const recOverlay = document.getElementById('receiptModalOverlay');
+          recOverlay.classList.remove('hidden');
+          recOverlay.classList.add('flex');
+        });
+
+        const closeReceiptModal = () => {
+          const recOverlay = document.getElementById('receiptModalOverlay');
+          recOverlay.classList.add('hidden');
+          recOverlay.classList.remove('flex');
+        };
+        document.getElementById('closeReceiptModalBtn').addEventListener('click', closeReceiptModal);
+        document.getElementById('doneReceiptBtn').addEventListener('click', closeReceiptModal);
+        document.getElementById('copyReceiptTextBtn').addEventListener('click', () => {
+          copyToClipboard(state.lastGeneratedText, 'Chek matni nusxalandi!');
+        });
+
+        // Admin Modal Open / Close
+        const openAdminModal = () => {
+          const overlay = document.getElementById('adminModalOverlay');
+          overlay.classList.remove('hidden');
+          overlay.classList.add('flex');
+          if (state.adminLoggedIn) {
+            document.getElementById('adminLoginScreen').classList.add('hidden');
+            document.getElementById('adminDashboardContent').classList.remove('hidden');
+            resetDishForm();
+            renderAdminMenu();
+            renderFinanceDashboard();
+            renderAdminOrders();
+            populateAdminSettingsInputs();
+          } else {
+            document.getElementById('adminLoginScreen').classList.remove('hidden');
+            document.getElementById('adminDashboardContent').classList.add('hidden');
+          }
+        };
+
+        const closeAdminModal = () => {
+          const overlay = document.getElementById('adminModalOverlay');
+          overlay.classList.add('hidden');
+          overlay.classList.remove('flex');
+        };
+
+        document.getElementById('openAdminBtn').addEventListener('click', openAdminModal);
+        document.getElementById('closeAdminModalBtn').addEventListener('click', closeAdminModal);
+
+        const completeAdminLogin = () => {
+          state.adminLoggedIn = true;
+          document.getElementById('adminLoginScreen').classList.add('hidden');
+          document.getElementById('adminDashboardContent').classList.remove('hidden');
+          resetDishForm();
+          renderAdminMenu();
+          renderFinanceDashboard();
+          renderAdminOrders();
+          populateAdminSettingsInputs();
+          showToast('Admin Panelga xush kelibsiz!');
+        };
+
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const pin = document.getElementById('adminPinInput').value.trim();
+          if (pin === state.adminPin) {
+            document.getElementById('adminPinInput').value = '';
+            completeAdminLogin();
+          } else {
+            showToast("Noto'g'ri PIN kod! (Standart: 1234)", 'error');
+          }
+        });
+
+        document.getElementById('quickOwnerLoginBtn').addEventListener('click', () => {
+          document.getElementById('adminPinInput').value = '';
+          completeAdminLogin();
+        });
+
+        // Admin Tabs Switching
+        document.querySelectorAll('.admin-tab-btn').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const tab = btn.dataset.adminTab;
+            document.querySelectorAll('.admin-tab-btn').forEach((b) => {
+              const active = b.dataset.adminTab === tab;
+              b.className = active
+                ? 'admin-tab-btn px-4 py-2.5 rounded-t-xl font-extrabold text-xs sm:text-sm bg-white text-[#111315] border-t border-x border-gray-200 cursor-pointer shrink-0'
+                : 'admin-tab-btn px-4 py-2.5 rounded-t-xl font-bold text-xs sm:text-sm text-gray-600 hover:text-[#111315] cursor-pointer shrink-0';
+            });
+            document.getElementById('adminTabMenu').classList.toggle('hidden', tab !== 'menu');
+            document.getElementById('adminTabFinance').classList.toggle('hidden', tab !== 'finance');
+            document.getElementById('adminTabOrders').classList.toggle('hidden', tab !== 'orders');
+            document.getElementById('adminTabSettings').classList.toggle('hidden', tab !== 'settings');
+            if (tab === 'finance') renderFinanceDashboard();
+          });
+        });
+
+        // Admin Menu Search
+        document.getElementById('adminMenuSearchInput').addEventListener('input', (e) => {
+          state.adminMenuSearch = e.target.value;
+          renderAdminMenu();
+        });
+
+        // Edit Dish Modal Events
+        document.getElementById('closeEditDishModalBtn').addEventListener('click', closeEditDishModal);
+        document.getElementById('cancelModalEditBtn').addEventListener('click', closeEditDishModal);
+
+        document.getElementById('modalClearDishImageBtn').addEventListener('click', () => {
+          document.getElementById('modalDishImageUrlInput').value = '';
+          document.getElementById('modalDishPhotoFileInput').value = '';
+          showToast('Rasm olib tashlandi');
+        });
+
+        document.getElementById('modalDishPhotoFileInput').addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxW = 480;
+              const scale = Math.min(1, maxW / img.width);
+              canvas.width = Math.round(img.width * scale);
+              canvas.height = Math.round(img.height * scale);
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              document.getElementById('modalDishImageUrlInput').value = canvas.toDataURL('image/jpeg', 0.78);
+              showToast('Yangi rasm tayyor!');
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('editDishModalForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const id = document.getElementById('modalEditDishId').value.trim();
+          const name = document.getElementById('modalDishNameInput').value.trim();
+          const price = Number(document.getElementById('modalDishPriceInput').value);
+          const category = document.getElementById('modalDishCategoryInput').value.trim();
+          const emoji = document.getElementById('modalDishEmojiInput').value.trim() || '🍔';
+          const imageUrl = document.getElementById('modalDishImageUrlInput').value.trim();
+          const description = document.getElementById('modalDishDescInput').value.trim();
+          const available = document.getElementById('modalDishAvailableInput').checked;
+
+          if (!name || !price || price <= 0) {
+            showToast("Taom nomi va to'g'ri narxini kiriting!", 'error');
+            return;
+          }
+
+          const idx = state.menu.findIndex((m) => m.id === id);
+          if (idx !== -1) {
+            state.menu[idx] = {
+              ...state.menu[idx],
+              name,
+              price,
+              category,
+              emoji,
+              imageUrl,
+              description,
+              available,
+            };
+            saveMenu();
+            syncCartWithMenu();
+            renderCategoryTabs();
+            renderMenu();
+            renderCart();
+            renderAdminMenu();
+            closeEditDishModal();
+            showToast(`"${name}" yangilandi va klentlarda o'zgardi!`);
+          }
+        });
+
+        // Custom Confirmation Dialog Events
+        document.getElementById('confirmDialogCancelBtn').addEventListener('click', closeConfirmDialog);
+        document.getElementById('confirmDialogYesBtn').addEventListener('click', () => {
+          if (typeof pendingConfirmCallback === 'function') {
+            pendingConfirmCallback();
+          }
+          closeConfirmDialog();
+        });
+
+        // Finance Dashboard Events
+        document.getElementById('financePeriodTabs').addEventListener('click', (e) => {
+          const btn = e.target.closest('.fin-period-btn');
+          if (!btn) return;
+          state.financePeriod = btn.dataset.finPeriod;
+          renderFinanceDashboard();
+        });
+
+        document.getElementById('quickExpenseChips').addEventListener('click', (e) => {
+          const chip = e.target.closest('.exp-chip-btn');
+          if (chip) {
+            document.getElementById('expenseTitleInput').value = chip.dataset.expChip || '';
+            document.getElementById('expenseAmountInput').focus();
+          }
+        });
+
+        document.getElementById('expenseForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const title = document.getElementById('expenseTitleInput').value.trim();
+          const amount = Number(document.getElementById('expenseAmountInput').value);
+          const source = document.getElementById('expenseSourceInput').value;
+          const note = document.getElementById('expenseNoteInput').value.trim();
+
+          if (!title || !amount || amount <= 0) {
+            showToast("Rashod nomi va summasini to'g'ri kiriting!", 'error');
+            return;
+          }
+
+          state.expenses.unshift({
+            id: 'exp_' + Date.now(),
+            title,
+            amount,
+            source,
+            note,
+            timestamp: Date.now(),
+            createdAt: getFormattedDateTime(new Date()),
+          });
+          saveExpenses();
+          renderFinanceDashboard();
+
+          document.getElementById('expenseTitleInput').value = '';
+          document.getElementById('expenseAmountInput').value = '';
+          document.getElementById('expenseNoteInput').value = '';
+          showToast(`Rashod qo'shildi: −${formatSom(amount)}`);
+        });
+
+        document.getElementById('expensesListContainer').addEventListener('click', (e) => {
+          const delBtn = e.target.closest('[data-delete-expense]');
+          if (!delBtn) return;
+          const id = delBtn.dataset.deleteExpense;
+          const target = state.expenses.find((x) => x.id === id);
+          openConfirmDialog(
+            "Rashodni o'chirish",
+            `"${target ? target.title : 'Rashod'}" yozuvini o'chirmoqchimisiz?`,
+            () => {
+              state.expenses = state.expenses.filter((x) => x.id !== id);
+              saveExpenses();
+              renderFinanceDashboard();
+              showToast("Rashod o'chirildi");
+            }
+          );
+        });
+
+        document.getElementById('manualSaleForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const amount = Number(document.getElementById('manualSaleAmountInput').value);
+          const paymentMethod = document.getElementById('manualSalePaymentInput').value;
+          const note = document.getElementById('manualSaleNoteInput').value.trim();
+          if (!amount || amount <= 0) {
+            showToast("Savdo summasini kiriting!", 'error');
+            return;
+          }
+
+          state.orderCounter += 1;
+          const orderCode = `PB-${state.orderCounter}`;
+          state.orders.unshift({
+            orderCode,
+            timestamp: Date.now(),
+            createdAt: getFormattedDateTime(new Date()),
+            customerName: note || 'Kassa mijozi',
+            customerPhone: 'Zal / Kassa',
+            orderType: 'pickup',
+            customerAddress: 'Olib ketish',
+            note,
+            items: [{ id: 'pos', name: note || 'Kassa savdosi', price: amount, emoji: '🍔', qty: 1 }],
+            subtotal: amount,
+            delivery: 0,
+            total: amount,
+            paymentMethod,
+            receiptDataUrl: null,
+            status: 'Tasdiqlandi',
+          });
+          saveOrders();
+          renderRecentOrders();
+          renderAdminOrders();
+          renderFinanceDashboard();
+
+          document.getElementById('manualSaleAmountInput').value = '';
+          document.getElementById('manualSaleNoteInput').value = '';
+          showToast(`Kassa savdosi qo'shildi: +${formatSom(amount)}`);
+        });
+
+        // Custom Category Select Toggle
+        document.getElementById('dishCategoryInput').addEventListener('change', (e) => {
+          const customInput = document.getElementById('customCategoryInput');
+          if (e.target.value === '__custom__') {
+            customInput.classList.remove('hidden');
+            customInput.focus();
+          } else {
+            customInput.classList.add('hidden');
+          }
+        });
+
+        // Quick Emoji Picker
+        document.getElementById('quickEmojiPicker').addEventListener('click', (e) => {
+          const btn = e.target.closest('.emoji-pick-btn');
+          if (btn) {
+            document.getElementById('dishEmojiInput').value = btn.dataset.emoji;
+          }
+        });
+
+        // Dish Photo Upload (compress via canvas for clean storage & sync)
+        document.getElementById('dishPhotoFileInput').addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const maxW = 480;
+              const scale = Math.min(1, maxW / img.width);
+              canvas.width = Math.round(img.width * scale);
+              canvas.height = Math.round(img.height * scale);
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+              document.getElementById('dishImageUrlInput').value = dataUrl;
+              setDishImagePreview(dataUrl);
+              showToast('Taom rasmi yuklandi');
+            };
+            img.src = reader.result;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        document.getElementById('dishImageUrlInput').addEventListener('input', (e) => {
+          setDishImagePreview(e.target.value);
+        });
+
+        document.getElementById('clearDishImageBtn').addEventListener('click', () => {
+          document.getElementById('dishImageUrlInput').value = '';
+          document.getElementById('dishPhotoFileInput').value = '';
+          setDishImagePreview('');
+        });
+
+        // Force Sync Button in Admin
+        document.getElementById('forceSyncAllBtn').addEventListener('click', async () => {
+          saveMenu();
+          const ok = await pushMenuToRealtimeDb();
+          showToast(
+            ok
+              ? 'Menyu Realtime Database va barcha klentlarga yuborildi!'
+              : 'Menyu lokal va ochiq oynalarga sinxronlandi!'
+          );
+        });
+
+        // Add / Edit Dish Form Submit
+        document.getElementById('dishForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const editId = document.getElementById('editDishId').value.trim();
+          const name = document.getElementById('dishNameInput').value.trim();
+          const price = Number(document.getElementById('dishPriceInput').value);
+          let category = document.getElementById('dishCategoryInput').value;
+          if (category === '__custom__') {
+            category = document.getElementById('customCategoryInput').value.trim() || 'Yangi kategoriya';
+          }
+          const emoji = document.getElementById('dishEmojiInput').value.trim() || '🍔';
+          const imageUrl = document.getElementById('dishImageUrlInput').value.trim();
+          const description = document.getElementById('dishDescInput').value.trim();
+          const available = document.getElementById('dishAvailableInput').checked;
+
+          if (!name || !price || price <= 0) {
+            showToast("Taom nomi va to'g'ri narxini kiriting!", 'error');
+            return;
+          }
+
+          if (editId) {
+            const idx = state.menu.findIndex((m) => m.id === editId);
+            if (idx !== -1) {
+              state.menu[idx] = {
+                ...state.menu[idx],
+                name,
+                price,
+                category,
+                emoji,
+                imageUrl,
+                description,
+                available,
+              };
+              showToast(`"${name}" yangilandi va klentlarda o'zgardi!`);
+            }
+          } else {
+            const newDish = {
+              id: 'dish-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+              name,
+              price,
+              category,
+              emoji,
+              imageUrl,
+              description: description || `${name} — yangi tayyorlangan mazali taom.`,
+              available,
+            };
+            state.menu.unshift(newDish);
+            showToast(`"${name}" menyuga qo'shildi va klentlarda ko'rindi!`);
+          }
+
+          saveMenu();
+          syncCartWithMenu();
+          renderCategoryTabs();
+          renderMenu();
+          renderCart();
+          renderAdminMenu();
+          resetDishForm();
+        });
+
+        document.getElementById('cancelEditDishBtn').addEventListener('click', resetDishForm);
+
+        // Admin Menu Actions (Toggle availability, Edit, Delete)
+        document.getElementById('adminMenuList').addEventListener('click', (e) => {
+          const toggleBtn = e.target.closest('[data-admin-toggle]');
+          if (toggleBtn) {
+            const item = state.menu.find((m) => m.id === toggleBtn.dataset.adminToggle);
+            if (item) {
+              item.available = !item.available;
+              saveMenu();
+              syncCartWithMenu();
+              renderMenu();
+              renderCart();
+              renderAdminMenu();
+              showToast(`${item.name} holati yangilandi`);
+            }
+            return;
+          }
+
+          const editBtn = e.target.closest('[data-admin-edit]');
+          if (editBtn) {
+            startEditDish(editBtn.dataset.adminEdit);
+            return;
+          }
+
+          const delBtn = e.target.closest('[data-admin-delete]');
+          if (delBtn) {
+            const id = delBtn.dataset.adminDelete;
+            const item = state.menu.find((m) => m.id === id);
+            openConfirmDialog(
+              "Taomni o'chirish",
+              `"${item ? item.name : 'Taom'}" menyudan o'chirilsinmi? Mijozlar saytidan ham darhol o'chadi.`,
+              () => {
+                state.menu = state.menu.filter((m) => m.id !== id);
+                saveMenu();
+                syncCartWithMenu();
+                renderCategoryTabs();
+                renderMenu();
+                renderCart();
+                renderAdminMenu();
+                showToast("Taom menyudan o'chirildi va klentlardan olib tashlandi");
+              }
+            );
+          }
+        });
+
+        document.getElementById('resetDefaultMenuBtn').addEventListener('click', () => {
+          openConfirmDialog(
+            'Standart menyuga qaytarish',
+            'Barcha qo\'shilgan va o\'zgartirilgan taomlar standart Panda Burger menyusiga qaytarilsinmi?',
+            () => {
+              state.menu = [...DEFAULT_MENU];
+              state.selectedCategory = 'Barchasi';
+              saveMenu();
+              syncCartWithMenu();
+              renderCategoryTabs();
+              renderMenu();
+              renderCart();
+              renderAdminMenu();
+              resetDishForm();
+              showToast('Standart menyu tiklandi');
+            }
+          );
+        });
+
+        // Admin Orders Status Change & Clear
+        document.getElementById('adminOrdersList').addEventListener('change', (e) => {
+          const sel = e.target.closest('[data-order-status]');
+          if (!sel) return;
+          const ord = state.orders.find((o) => o.orderCode === sel.dataset.orderStatus);
+          if (ord) {
+            ord.status = sel.value;
+            saveOrders();
+            renderRecentOrders();
+            renderAdminOrders();
+            renderFinanceDashboard();
+            showToast(`Buyurtma #${ord.orderCode} holati: ${ord.status}`);
+          }
+        });
+
+        document.getElementById('adminOrdersList').addEventListener('click', (e) => {
+          const delBtn = e.target.closest('[data-delete-order]');
+          if (!delBtn) return;
+          const code = delBtn.dataset.deleteOrder;
+          openConfirmDialog(
+            "Buyurtmani o'chirish",
+            `#${code} buyurtmasini ro'yxatdan o'chirmoqchimisiz?`,
+            () => {
+              state.orders = state.orders.filter((o) => o.orderCode !== code);
+              saveOrders();
+              renderRecentOrders();
+              renderAdminOrders();
+              renderFinanceDashboard();
+              showToast(`#${code} buyurtma o'chirildi`);
+            }
+          );
+        });
+
+        document.getElementById('clearAllOrdersBtn').addEventListener('click', () => {
+          openConfirmDialog(
+            "Barcha buyurtmalar tarixini tozalash",
+            "Barcha buyurtmalar ro'yxatini tozalamoqchimisiz?",
+            () => {
+              state.orders = [];
+              saveOrders();
+              renderRecentOrders();
+              renderAdminOrders();
+              renderFinanceDashboard();
+              showToast('Buyurtmalar tarixi tozalandi');
+            }
+          );
+        });
+
+        // Telegram Bot Settings Form
+        document.getElementById('botSettingsForm').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const token = document.getElementById('botTokenInput').value.trim();
+          const chatId = document.getElementById('botChatIdInput').value.trim();
+          const newPin = document.getElementById('newAdminPinInput').value.trim();
+
+          if (!token || !chatId) {
+            showToast('Bot Token va Chat ID kiriting!', 'error');
+            return;
+          }
+
+          state.botConfig = { token, chatId };
+          saveBotConfig();
+
+          if (newPin && newPin.length >= 4) {
+            state.adminPin = newPin;
+            try {
+              localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, state.adminPin);
+            } catch (err) {}
+          }
+
+          showToast('Telegram bot sozlamalari saqlandi!');
+        });
+
+        document.getElementById('testBotBtn').addEventListener('click', async () => {
+          const token = document.getElementById('botTokenInput').value.trim();
+          const chatId = document.getElementById('botChatIdInput').value.trim();
+          if (!token || !chatId) {
+            showToast('Avval Bot Token va Chat ID kiriting!', 'error');
+            return;
+          }
+          state.botConfig = { token, chatId };
+          saveBotConfig();
+
+          showToast('Test xabar yuborilmoqda...', 'info');
+          try {
+            const resp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: chatId,
+                text: `🐼 PANDA BURGER — Test xabar\n🕒 Vaqt: ${getFormattedDateTime(new Date())}\n✅ Bot muvaffaqiyatli ulandi!`,
+              }),
+            });
+            const data = await resp.json();
+            if (resp.ok && data.ok) {
+              showToast('Test xabar Telegram botga yuborildi ✓');
+            } else {
+              showToast(`Telegram xatosi: ${data.description || 'Token yoki Chat ID xato'}`, 'error');
+            }
+          } catch (err) {
+            showToast("Telegram API bilan bog'lanib bo'lmadi", 'error');
+          }
+        });
+
+        // Realtime Database Settings Form
+        document.getElementById('rtdbSettingsForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const url = document.getElementById('rtdbUrlInput').value.trim();
+          const auth = document.getElementById('rtdbAuthInput').value.trim();
+          state.rtdbConfig = { url, auth };
+          saveRtdbConfig();
+          startLiveRealtimeSync();
+          await pushMenuToRealtimeDb();
+          await pushOrdersToRealtimeDb();
+          await pushExpensesToRealtimeDb();
+          showToast('Realtime Database sozlamalari saqlandi va sinxronlandi!');
+        });
+
+        document.getElementById('pullRtdbNowBtn').addEventListener('click', async () => {
+          const ok = await pullFromRealtimeDb(true);
+          if (ok) {
+            showToast("Ma'lumotlar Realtime Database'dan yangilandi!");
+          } else {
+            showToast("Realtime Database'dan ulanib bo'lmadi", 'error');
+          }
+        });
+      }
+
+      // Initialize App
+      function init() {
+        loadState();
+        renderCategoryTabs();
+        renderMenu();
+        renderCart();
+        renderRecentOrders();
+        renderAdminOrders();
+        renderFinanceDashboard();
+        setOrderType('delivery');
+        setPaymentMethod('click');
+        bindEvents();
+        startLiveRealtimeSync();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
